@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -30,7 +31,7 @@ const tabs = [
 export const BuyerPersonaForm = () => {
   const [activeTab, setActiveTab] = useState('demographics');
   const [formData, setFormData] = useState<Partial<BuyerPersona>>({});
-  const { control, handleSubmit, watch, setValue } = useForm<BuyerPersona>({
+  const form = useForm<BuyerPersona>({
     defaultValues: {
       personaName: '',
       title: '',
@@ -97,7 +98,7 @@ export const BuyerPersonaForm = () => {
     },
   });
 
-  const watchedData = watch();
+  const watchedData = form.watch();
 
   React.useEffect(() => {
     setFormData(watchedData);
@@ -136,80 +137,82 @@ export const BuyerPersonaForm = () => {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-9 mb-8">
-            {tabs.map((tab) => (
-              <TabsTrigger 
-                key={tab.id} 
-                value={tab.id}
-                className="text-xs"
-              >
-                {tab.title}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          <Card className="min-h-[600px]">
-            <CardHeader>
-              <CardTitle>{tabs.find(t => t.id === activeTab)?.title}</CardTitle>
-              <CardDescription>{tabs.find(t => t.id === activeTab)?.description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <TabsContent value="demographics" className="mt-0">
-                <DemographicsForm control={control} />
-              </TabsContent>
-              
-              <TabsContent value="personality" className="mt-0">
-                <PersonalityForm control={control} />
-              </TabsContent>
-              
-              <TabsContent value="motivations" className="mt-0">
-                <MotivationsForm control={control} />
-              </TabsContent>
-              
-              <TabsContent value="channels" className="mt-0">
-                <ChannelsForm control={control} />
-              </TabsContent>
-              
-              <TabsContent value="business" className="mt-0">
-                <BusinessForm control={control} />
-              </TabsContent>
-              
-              <TabsContent value="beliefs" className="mt-0">
-                <BeliefsForm control={control} />
-              </TabsContent>
-              
-              <TabsContent value="influences" className="mt-0">
-                <InfluencesForm control={control} />
-              </TabsContent>
-              
-              <TabsContent value="content" className="mt-0">
-                <ContentForm control={control} />
-              </TabsContent>
-              
-              <TabsContent value="preview" className="mt-0">
-                <BuyerPersonaPreview persona={formData as BuyerPersona} />
-              </TabsContent>
-
-              <div className="flex justify-between mt-8">
-                <Button 
-                  variant="outline" 
-                  onClick={onPrev}
-                  disabled={currentTabIndex === 0}
+        <Form {...form}>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-9 mb-8">
+              {tabs.map((tab) => (
+                <TabsTrigger 
+                  key={tab.id} 
+                  value={tab.id}
+                  className="text-xs"
                 >
-                  Anterior
-                </Button>
+                  {tab.title}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            <Card className="min-h-[600px]">
+              <CardHeader>
+                <CardTitle>{tabs.find(t => t.id === activeTab)?.title}</CardTitle>
+                <CardDescription>{tabs.find(t => t.id === activeTab)?.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value="demographics" className="mt-0">
+                  <DemographicsForm control={form.control} />
+                </TabsContent>
                 
-                <Button 
-                  onClick={onNext}
-                  disabled={currentTabIndex === tabs.length - 1}
-                >
-                  Siguiente
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </Tabs>
+                <TabsContent value="personality" className="mt-0">
+                  <PersonalityForm control={form.control} />
+                </TabsContent>
+                
+                <TabsContent value="motivations" className="mt-0">
+                  <MotivationsForm control={form.control} />
+                </TabsContent>
+                
+                <TabsContent value="channels" className="mt-0">
+                  <ChannelsForm control={form.control} />
+                </TabsContent>
+                
+                <TabsContent value="business" className="mt-0">
+                  <BusinessForm control={form.control} />
+                </TabsContent>
+                
+                <TabsContent value="beliefs" className="mt-0">
+                  <BeliefsForm control={form.control} />
+                </TabsContent>
+                
+                <TabsContent value="influences" className="mt-0">
+                  <InfluencesForm control={form.control} />
+                </TabsContent>
+                
+                <TabsContent value="content" className="mt-0">
+                  <ContentForm control={form.control} />
+                </TabsContent>
+                
+                <TabsContent value="preview" className="mt-0">
+                  <BuyerPersonaPreview persona={formData as BuyerPersona} />
+                </TabsContent>
+
+                <div className="flex justify-between mt-8">
+                  <Button 
+                    variant="outline" 
+                    onClick={onPrev}
+                    disabled={currentTabIndex === 0}
+                  >
+                    Anterior
+                  </Button>
+                  
+                  <Button 
+                    onClick={onNext}
+                    disabled={currentTabIndex === tabs.length - 1}
+                  >
+                    Siguiente
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </Tabs>
+        </Form>
       </div>
     </div>
   );
