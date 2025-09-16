@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { BuyerPersonaForm } from "@/components/BuyerPersonaForm";
 import { BusinessCanvasForm } from "@/components/BusinessCanvasForm";
+import { ProductRoadmapForm } from "@/components/ProductRoadmapForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -13,6 +14,8 @@ const Index = () => {
         return <BuyerPersonaForm />;
       case 'business-canvas':
         return <BusinessCanvasForm />;
+      case 'product-roadmap':
+        return <ProductRoadmapForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -24,7 +27,7 @@ const Index = () => {
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-3 gap-6">
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setCurrentPhase('buyer-persona')}>
                   <CardHeader>
                     <CardTitle>Fase 1: Buyer Persona</CardTitle>
@@ -46,6 +49,18 @@ const Index = () => {
                   </CardHeader>
                   <CardContent>
                     <Button className="w-full">Comenzar Canvas</Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setCurrentPhase('product-roadmap')}>
+                  <CardHeader>
+                    <CardTitle>Fase 3: Product Roadmap</CardTitle>
+                    <CardDescription>
+                      Planifica tu producto con priorización MoSCoW y análisis competitivo
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">Comenzar Roadmap</Button>
                   </CardContent>
                 </Card>
               </div>
