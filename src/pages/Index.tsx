@@ -2,11 +2,12 @@ import { useState } from "react";
 import { BuyerPersonaForm } from "@/components/BuyerPersonaForm";
 import { BusinessCanvasForm } from "@/components/BusinessCanvasForm";
 import { ProductRoadmapForm } from "@/components/ProductRoadmapForm";
+import { ContentStrategyForm } from "@/components/ContentStrategyForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -16,6 +17,8 @@ const Index = () => {
         return <BusinessCanvasForm />;
       case 'product-roadmap':
         return <ProductRoadmapForm />;
+      case 'content-strategy':
+        return <ContentStrategyForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -27,7 +30,7 @@ const Index = () => {
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setCurrentPhase('buyer-persona')}>
                   <CardHeader>
                     <CardTitle>Fase 1: Buyer Persona</CardTitle>
@@ -61,6 +64,18 @@ const Index = () => {
                   </CardHeader>
                   <CardContent>
                     <Button className="w-full">Comenzar Roadmap</Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setCurrentPhase('content-strategy')}>
+                  <CardHeader>
+                    <CardTitle>Fase 4: Estrategia de Contenido</CardTitle>
+                    <CardDescription>
+                      Desarrolla tu estrategia de contenido con canales, tono y objetivos
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">Comenzar Estrategia</Button>
                   </CardContent>
                 </Card>
               </div>
