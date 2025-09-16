@@ -9,12 +9,12 @@ import { BuyerPersona } from '@/types/buyer-persona';
 import { Download, User, Target, Heart, MessageSquare } from 'lucide-react';
 
 interface BuyerPersonaPreviewProps {
-  persona: BuyerPersona;
+  personas: BuyerPersona[];
 }
 
-export const BuyerPersonaPreview: React.FC<BuyerPersonaPreviewProps> = ({ persona }) => {
+export const BuyerPersonaPreview: React.FC<BuyerPersonaPreviewProps> = ({ personas }) => {
   const generatePDF = async () => {
-    const element = document.getElementById('buyer-persona-preview');
+    const element = document.getElementById('buyer-personas-preview');
     if (!element) return;
 
     try {
@@ -44,13 +44,13 @@ export const BuyerPersonaPreview: React.FC<BuyerPersonaPreviewProps> = ({ person
         heightLeft -= pageHeight;
       }
       
-      pdf.save(`buyer-persona-${persona.personaName || 'sin-nombre'}.pdf`);
+      pdf.save(`buyer-personas-${personas.length}-personas.pdf`);
     } catch (error) {
       console.error('Error generando PDF:', error);
     }
   };
 
-  const getSelectedChannels = () => {
+  const getSelectedChannels = (persona: BuyerPersona) => {
     if (!persona.preferredChannels) return [];
     return Object.entries(persona.preferredChannels)
       .filter(([_, selected]) => selected)
@@ -66,188 +66,138 @@ export const BuyerPersonaPreview: React.FC<BuyerPersonaPreviewProps> = ({ person
       });
   };
 
-  const getPersonalityScore = (trait: keyof BuyerPersona['personality']) => {
+  const getPersonalityScore = (persona: BuyerPersona, trait: keyof BuyerPersona['personality']) => {
     return persona.personality?.[trait] || 5;
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Vista Previa del Buyer Persona</h2>
-        <Button onClick={generatePDF} className="gap-2">
-          <Download className="h-4 w-4" />
-          Descargar PDF
-        </Button>
+  const renderPersonaCard = (persona: BuyerPersona, index: number) => (
+    <div key={index} className="bg-white border-2 border-gray-200 rounded-lg p-6 mb-8">
+      {/* Header */}
+      <div className="text-center mb-6">
+        <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/60 rounded-full mx-auto mb-3 flex items-center justify-center">
+          <User className="h-10 w-10 text-white" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-1">
+          {persona.personaName || `Buyer Persona ${index + 1}`}
+        </h2>
+        <p className="text-lg text-gray-600">
+          {persona.title || 'Título/Cargo'}
+        </p>
       </div>
 
-      <div id="buyer-persona-preview" className="bg-white p-8 rounded-lg shadow-sm">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-24 h-24 bg-gradient-to-br from-primary to-primary/60 rounded-full mx-auto mb-4 flex items-center justify-center">
-            <User className="h-12 w-12 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            {persona.personaName || 'Nombre del Persona'}
-          </h1>
-          <p className="text-xl text-gray-600">
-            {persona.title || 'Título/Cargo'}
-          </p>
-        </div>
-
-        {/* Demographics */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Demografía
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p><strong>Área Funcional:</strong> {persona.functionalArea || 'No especificado'}</p>
-                <p><strong>Edad:</strong> {persona.age || 'No especificado'}</p>
-                <p><strong>Ubicación:</strong> {persona.location || 'No especificado'}</p>
-              </div>
-              <div>
-                <p><strong>Biografía:</strong></p>
-                <p className="text-sm text-gray-600 mt-1">
-                  {persona.bio || 'No especificado'}
-                </p>
-              </div>
-            </div>
+      {/* Quick Info Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Card className="text-center">
+          <CardContent className="pt-4">
+            <p className="text-sm font-medium text-gray-500">Área</p>
+            <p className="text-lg font-bold">{persona.functionalArea || 'N/A'}</p>
           </CardContent>
         </Card>
-
-        {/* Personality */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Personalidad</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span>Introvertido</span>
-                <Progress value={getPersonalityScore('extrovert') * 10} className="w-32" />
-                <span>Extrovertido</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Pensamiento</span>
-                <Progress value={getPersonalityScore('thinking') * 10} className="w-32" />
-                <span>Sentimiento</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Control</span>
-                <Progress value={getPersonalityScore('control') * 10} className="w-32" />
-                <span>Emprendedor</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Práctico</span>
-                <Progress value={getPersonalityScore('practical') * 10} className="w-32" />
-                <span>Visionario</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Conservador</span>
-                <Progress value={getPersonalityScore('conservative') * 10} className="w-32" />
-                <span>Innovador</span>
-              </div>
-            </div>
+        
+        <Card className="text-center">
+          <CardContent className="pt-4">
+            <p className="text-sm font-medium text-gray-500">Edad</p>
+            <p className="text-lg font-bold">{persona.age || 'N/A'}</p>
           </CardContent>
         </Card>
-
-        {/* Motivations */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Motivaciones
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {persona.motivations && Object.entries(persona.motivations).map(([key, value]) => (
-                value && (
-                  <div key={key} className="space-y-1">
-                    <p className="font-medium capitalize">{key}:</p>
-                    <p className="text-sm text-gray-600">{value}</p>
-                  </div>
-                )
-              ))}
-            </div>
+        
+        <Card className="text-center">
+          <CardContent className="pt-4">
+            <p className="text-sm font-medium text-gray-500">Ubicación</p>
+            <p className="text-lg font-bold">{persona.location || 'N/A'}</p>
           </CardContent>
         </Card>
-
-        {/* Channels */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Canales Preferidos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {getSelectedChannels().map((channel) => (
-                <Badge key={channel} variant="secondary">
-                  {channel}
-                </Badge>
-              ))}
-            </div>
+        
+        <Card className="text-center">
+          <CardContent className="pt-4">
+            <p className="text-sm font-medium text-gray-500">Canales</p>
+            <p className="text-lg font-bold">{getSelectedChannels(persona).length}</p>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Goals, Pains, Quote */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Objetivos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">{persona.goals || 'No especificado'}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Dolores</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">{persona.pains || 'No especificado'}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                Frase
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm italic">"{persona.quote || 'No especificado'}"</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Key Information */}
+      {/* Key Information */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <Card>
-          <CardHeader>
-            <CardTitle>Información Clave de Compra</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-green-700">Objetivos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <p className="font-medium text-green-700">Razón Clave de Compra:</p>
-                <p className="text-sm">{persona.keyReasonToBuy || 'No especificado'}</p>
-              </div>
-              <div>
-                <p className="font-medium text-blue-700">Deal-Maker:</p>
-                <p className="text-sm">{persona.dealMaker || 'No especificado'}</p>
-              </div>
-              <div>
-                <p className="font-medium text-red-700">Deal-Breaker:</p>
-                <p className="text-sm">{persona.dealBreaker || 'No especificado'}</p>
-              </div>
-            </div>
+            <p className="text-sm">{persona.goals || 'No especificado'}</p>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-red-700">Dolores</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm">{persona.pains || 'No especificado'}</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-1">
+              <MessageSquare className="h-3 w-3" />
+              Frase Clave
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm italic">"{persona.quote || 'No especificado'}"</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Channels */}
+      <div className="mb-4">
+        <h4 className="font-medium mb-2">Canales Preferidos:</h4>
+        <div className="flex flex-wrap gap-2">
+          {getSelectedChannels(persona).map((channel) => (
+            <Badge key={channel} variant="secondary" className="text-xs">
+              {channel}
+            </Badge>
+          ))}
+        </div>
+      </div>
+
+      {/* Deal Info */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div>
+          <p className="font-medium text-green-700">Razón de Compra:</p>
+          <p className="text-xs">{persona.keyReasonToBuy || 'No especificado'}</p>
+        </div>
+        <div>
+          <p className="font-medium text-blue-700">Deal-Maker:</p>
+          <p className="text-xs">{persona.dealMaker || 'No especificado'}</p>
+        </div>
+        <div>
+          <p className="font-medium text-red-700">Deal-Breaker:</p>
+          <p className="text-xs">{persona.dealBreaker || 'No especificado'}</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Buyer Personas Completados</h1>
+            <p className="text-muted-foreground">
+              {personas.length} persona{personas.length !== 1 ? 's' : ''} creado{personas.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          <Button onClick={generatePDF} className="gap-2">
+            <Download className="h-4 w-4" />
+            Descargar Todos (PDF)
+          </Button>
+        </div>
+
+        <div id="buyer-personas-preview" className="space-y-8">
+          {personas.map((persona, index) => renderPersonaCard(persona, index))}
+        </div>
       </div>
     </div>
   );
