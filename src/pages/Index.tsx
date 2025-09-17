@@ -4,11 +4,12 @@ import { BusinessCanvasForm } from "@/components/BusinessCanvasForm";
 import { ProductRoadmapForm } from "@/components/ProductRoadmapForm";
 import { ContentStrategyForm } from "@/components/ContentStrategyForm";
 import { IntelligentContentStrategyForm } from "@/components/IntelligentContentStrategyForm";
+import { AnalyticsInsightsForm } from "@/components/AnalyticsInsightsForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -22,6 +23,8 @@ const Index = () => {
         return <ContentStrategyForm />;
       case 'intelligent-content-strategy':
         return <IntelligentContentStrategyForm />;
+      case 'analytics-insights':
+        return <AnalyticsInsightsForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -88,21 +91,31 @@ const Index = () => {
                   </Card>
                 </div>
 
-                {/* Tercera fila - Fase 5 centrada */}
-                <div className="flex justify-center">
-                  <div className="w-full md:w-1/2">
-                    <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setCurrentPhase('intelligent-content-strategy')}>
-                      <CardHeader>
-                        <CardTitle>Fase 5: Estrategia Inteligente</CardTitle>
-                        <CardDescription>
-                          Estrategia de contenido generada automáticamente basada en tus datos previos
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <Button className="w-full">Comenzar Estrategia IA</Button>
-                      </CardContent>
-                    </Card>
-                  </div>
+                {/* Tercera fila - Fases 5 y 6 */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setCurrentPhase('intelligent-content-strategy')}>
+                    <CardHeader>
+                      <CardTitle>Fase 5: Estrategia Inteligente</CardTitle>
+                      <CardDescription>
+                        Estrategia de contenido generada automáticamente basada en tus datos previos
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full">Comenzar Estrategia IA</Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setCurrentPhase('analytics-insights')}>
+                    <CardHeader>
+                      <CardTitle>Fase 6: Análisis e Insights</CardTitle>
+                      <CardDescription>
+                        Análisis de contenido, competencia y hooks para maximizar resultados
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full">Ver Análisis</Button>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
 
