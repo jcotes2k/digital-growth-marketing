@@ -3,6 +3,7 @@ import { BuyerPersonaForm } from "@/components/BuyerPersonaForm";
 import { BusinessCanvasForm } from "@/components/BusinessCanvasForm";
 import { ProductRoadmapForm } from "@/components/ProductRoadmapForm";
 import { ContentStrategyForm } from "@/components/ContentStrategyForm";
+import { IntelligentContentStrategyForm } from "@/components/IntelligentContentStrategyForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
