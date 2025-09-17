@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -20,6 +20,8 @@ const Index = () => {
         return <ProductRoadmapForm />;
       case 'content-strategy':
         return <ContentStrategyForm />;
+      case 'intelligent-content-strategy':
+        return <IntelligentContentStrategyForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -31,7 +33,7 @@ const Index = () => {
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setCurrentPhase('buyer-persona')}>
                   <CardHeader>
                     <CardTitle>Fase 1: Buyer Persona</CardTitle>
@@ -77,6 +79,18 @@ const Index = () => {
                   </CardHeader>
                   <CardContent>
                     <Button className="w-full">Comenzar Estrategia</Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setCurrentPhase('intelligent-content-strategy')}>
+                  <CardHeader>
+                    <CardTitle>Fase 5: Estrategia Inteligente</CardTitle>
+                    <CardDescription>
+                      Estrategia de contenido generada automáticamente basada en tus datos previos
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">Comenzar Estrategia IA</Button>
                   </CardContent>
                 </Card>
               </div>
