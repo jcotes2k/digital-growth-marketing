@@ -18,6 +18,8 @@ import { BuyerPersonaPreview } from './BuyerPersonaPreview';
 import { PersonaCountSelector } from './buyer-persona/PersonaCountSelector';
 import { BuyerPersona } from '@/types/buyer-persona';
 import { BuyerPersonaCollection } from '@/types/buyer-persona-collection';
+import { CompanyInfo } from '@/types/company-info';
+import { CompanyInfoForm } from './CompanyInfoForm';
 import { ChevronLeft, ChevronRight, Users, Eye } from 'lucide-react';
 
 const tabs = [
@@ -33,7 +35,8 @@ const tabs = [
 ];
 
 export const BuyerPersonaForm = () => {
-  const [step, setStep] = useState<'select-count' | 'create-personas' | 'preview-all'>('select-count');
+  const [step, setStep] = useState<'company-info' | 'select-count' | 'create-personas' | 'preview-all'>('company-info');
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [activeTab, setActiveTab] = useState('demographics');
   const [collection, setCollection] = useState<BuyerPersonaCollection>({
     totalPersonas: 0,
@@ -121,6 +124,11 @@ export const BuyerPersonaForm = () => {
       }));
     }
   }, [watchedData, collection.currentPersonaIndex, step]);
+
+  const handleCompanyInfoSubmit = (data: CompanyInfo) => {
+    setCompanyInfo(data);
+    setStep('select-count');
+  };
 
   const handleCountSelected = (count: number) => {
     const initialPersonas = Array.from({ length: count }, () => ({
@@ -247,6 +255,10 @@ export const BuyerPersonaForm = () => {
       setActiveTab(tabs[currentIndex - 1].id);
     }
   };
+
+  if (step === 'company-info') {
+    return <CompanyInfoForm onNext={handleCompanyInfoSubmit} />;
+  }
 
   if (step === 'select-count') {
     return <PersonaCountSelector onCountSelected={handleCountSelected} />;
