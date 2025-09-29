@@ -8,11 +8,12 @@ import { AnalyticsInsightsForm } from "@/components/AnalyticsInsightsForm";
 import { ContentGeneratorForm } from "@/components/ContentGeneratorForm";
 import { EditorialCalendarForm } from "@/components/EditorialCalendarForm";
 import { CompetitorAnalyzerForm } from "@/components/CompetitorAnalyzerForm";
+import { AIImageBankForm } from "@/components/AIImageBankForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -34,6 +35,8 @@ const Index = () => {
         return <EditorialCalendarForm />;
       case 'competitor-analyzer':
         return <CompetitorAnalyzerForm />;
+      case 'ai-image-bank':
+        return <AIImageBankForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -158,7 +161,7 @@ const Index = () => {
                   </Card>
                 </div>
 
-                {/* Quinta fila - Análisis Competitivo */}
+                {/* Quinta fila - Herramientas Adicionales */}
                 <div className="grid md:grid-cols-2 gap-6">
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow border-orange-200" onClick={() => setCurrentPhase('competitor-analyzer')}>
                     <CardHeader className="text-center">
@@ -170,6 +173,20 @@ const Index = () => {
                     <CardContent>
                       <Button className="w-full" variant="outline">
                         Analizar Competencia
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border-purple-200" onClick={() => setCurrentPhase('ai-image-bank')}>
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-purple-600">🎨 Banco de Imágenes IA</CardTitle>
+                      <CardDescription>
+                        Genera imágenes personalizadas para tu contenido con inteligencia artificial
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full" variant="outline">
+                        Generar Imágenes
                       </Button>
                     </CardContent>
                   </Card>
