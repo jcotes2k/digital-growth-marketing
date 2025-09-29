@@ -32,6 +32,9 @@ verify_jwt = false
 [functions.hashtag-generator]
 verify_jwt = false
 
+[functions.template-generator]
+verify_jwt = false
+
 [edge_runtime]
 policy = "per_worker"
 inspector_port = 8083

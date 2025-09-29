@@ -10,11 +10,12 @@ import { EditorialCalendarForm } from "@/components/EditorialCalendarForm";
 import { CompetitorAnalyzerForm } from "@/components/CompetitorAnalyzerForm";
 import { AIImageBankForm } from "@/components/AIImageBankForm";
 import { HashtagGeneratorForm } from "@/components/HashtagGeneratorForm";
+import { PostTemplateForm } from "@/components/PostTemplateForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -40,6 +41,8 @@ const Index = () => {
         return <AIImageBankForm />;
       case 'hashtag-generator':
         return <HashtagGeneratorForm />;
+      case 'post-templates':
+        return <PostTemplateForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -165,7 +168,7 @@ const Index = () => {
                 </div>
 
                 {/* Quinta fila - Herramientas IA */}
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-4 gap-6">
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow border-orange-200" onClick={() => setCurrentPhase('competitor-analyzer')}>
                     <CardHeader className="text-center">
                       <CardTitle className="text-orange-600">🔍 Análisis Competitivo</CardTitle>
@@ -204,6 +207,20 @@ const Index = () => {
                     <CardContent>
                       <Button className="w-full" variant="outline">
                         Crear Hashtags
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border-blue-200" onClick={() => setCurrentPhase('post-templates')}>
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-blue-600">📝 Templates de Posts</CardTitle>
+                      <CardDescription>
+                        Crea posts con templates predefinidos
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full" variant="outline">
+                        Usar Templates
                       </Button>
                     </CardContent>
                   </Card>
