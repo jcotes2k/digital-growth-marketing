@@ -23,6 +23,9 @@ port = 54323
 [functions.content-generator]
 verify_jwt = false
 
+[functions.competitor-analyzer]
+verify_jwt = false
+
 [edge_runtime]
 policy = "per_worker"
 inspector_port = 8083

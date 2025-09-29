@@ -7,11 +7,12 @@ import { IntelligentContentStrategyForm } from "@/components/IntelligentContentS
 import { AnalyticsInsightsForm } from "@/components/AnalyticsInsightsForm";
 import { ContentGeneratorForm } from "@/components/ContentGeneratorForm";
 import { EditorialCalendarForm } from "@/components/EditorialCalendarForm";
+import { CompetitorAnalyzerForm } from "@/components/CompetitorAnalyzerForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -31,6 +32,8 @@ const Index = () => {
         return <ContentGeneratorForm />;
       case 'editorial-calendar':
         return <EditorialCalendarForm />;
+      case 'competitor-analyzer':
+        return <CompetitorAnalyzerForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -150,6 +153,23 @@ const Index = () => {
                     <CardContent>
                       <Button className="w-full" variant="secondary">
                         Ver Calendario
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Quinta fila - Análisis Competitivo */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border-orange-200" onClick={() => setCurrentPhase('competitor-analyzer')}>
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-orange-600">🔍 Análisis Competitivo</CardTitle>
+                      <CardDescription>
+                        Analiza tu competencia con IA y descubre oportunidades de mercado
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full" variant="outline">
+                        Analizar Competencia
                       </Button>
                     </CardContent>
                   </Card>
