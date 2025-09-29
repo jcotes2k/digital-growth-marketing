@@ -9,11 +9,12 @@ import { ContentGeneratorForm } from "@/components/ContentGeneratorForm";
 import { EditorialCalendarForm } from "@/components/EditorialCalendarForm";
 import { CompetitorAnalyzerForm } from "@/components/CompetitorAnalyzerForm";
 import { AIImageBankForm } from "@/components/AIImageBankForm";
+import { HashtagGeneratorForm } from "@/components/HashtagGeneratorForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -37,6 +38,8 @@ const Index = () => {
         return <CompetitorAnalyzerForm />;
       case 'ai-image-bank':
         return <AIImageBankForm />;
+      case 'hashtag-generator':
+        return <HashtagGeneratorForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -161,18 +164,18 @@ const Index = () => {
                   </Card>
                 </div>
 
-                {/* Quinta fila - Herramientas Adicionales */}
-                <div className="grid md:grid-cols-2 gap-6">
+                {/* Quinta fila - Herramientas IA */}
+                <div className="grid md:grid-cols-3 gap-6">
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow border-orange-200" onClick={() => setCurrentPhase('competitor-analyzer')}>
                     <CardHeader className="text-center">
                       <CardTitle className="text-orange-600">🔍 Análisis Competitivo</CardTitle>
                       <CardDescription>
-                        Analiza tu competencia con IA y descubre oportunidades de mercado
+                        Analiza tu competencia con IA
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <Button className="w-full" variant="outline">
-                        Analizar Competencia
+                        Analizar
                       </Button>
                     </CardContent>
                   </Card>
@@ -181,12 +184,26 @@ const Index = () => {
                     <CardHeader className="text-center">
                       <CardTitle className="text-purple-600">🎨 Banco de Imágenes IA</CardTitle>
                       <CardDescription>
-                        Genera imágenes personalizadas para tu contenido con inteligencia artificial
+                        Genera imágenes personalizadas
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <Button className="w-full" variant="outline">
-                        Generar Imágenes
+                        Generar
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border-green-200" onClick={() => setCurrentPhase('hashtag-generator')}>
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-green-600"># Generador de Hashtags</CardTitle>
+                      <CardDescription>
+                        Hashtags relevantes por tema
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full" variant="outline">
+                        Crear Hashtags
                       </Button>
                     </CardContent>
                   </Card>
