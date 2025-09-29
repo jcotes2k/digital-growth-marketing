@@ -14,7 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      editorial_calendar: {
+        Row: {
+          content: string
+          content_type: string
+          created_at: string
+          generated_by_ai: boolean | null
+          id: string
+          notes: string | null
+          platform: string
+          scheduled_date: string
+          scheduled_time: string | null
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_type: string
+          created_at?: string
+          generated_by_ai?: boolean | null
+          id?: string
+          notes?: string | null
+          platform: string
+          scheduled_date: string
+          scheduled_time?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_type?: string
+          created_at?: string
+          generated_by_ai?: boolean | null
+          id?: string
+          notes?: string | null
+          platform?: string
+          scheduled_date?: string
+          scheduled_time?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

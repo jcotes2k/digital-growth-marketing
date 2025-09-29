@@ -6,7 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Loader2, Copy, Download, Share2 } from 'lucide-react';
+import { Loader2, Copy, Download, Calendar as CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -285,6 +285,24 @@ export const ContentGeneratorForm = () => {
                   >
                     <Download className="mr-2 h-4 w-4" />
                     Descargar
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      localStorage.setItem('generatedContent', JSON.stringify({
+                        content: generatedContent,
+                        contentType: form.getValues('contentType'),
+                        topic: form.getValues('topic'),
+                        tone: form.getValues('tone')
+                      }));
+                      window.location.hash = 'editorial-calendar';
+                      window.location.reload();
+                    }}
+                    variant="default"
+                    size="sm"
+                    className="flex-1"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    Programar
                   </Button>
                 </div>
               </div>

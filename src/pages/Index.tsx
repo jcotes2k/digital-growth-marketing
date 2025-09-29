@@ -6,11 +6,12 @@ import { ContentStrategyForm } from "@/components/ContentStrategyForm";
 import { IntelligentContentStrategyForm } from "@/components/IntelligentContentStrategyForm";
 import { AnalyticsInsightsForm } from "@/components/AnalyticsInsightsForm";
 import { ContentGeneratorForm } from "@/components/ContentGeneratorForm";
+import { EditorialCalendarForm } from "@/components/EditorialCalendarForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -28,6 +29,8 @@ const Index = () => {
         return <AnalyticsInsightsForm />;
       case 'content-generator':
         return <ContentGeneratorForm />;
+      case 'editorial-calendar':
+        return <EditorialCalendarForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -121,11 +124,11 @@ const Index = () => {
                   </Card>
                 </div>
 
-                {/* Cuarta fila - Generador de Contenido */}
-                <div className="grid md:grid-cols-1 gap-6 max-w-md mx-auto">
+                {/* Cuarta fila - Nuevas Funcionalidades */}
+                <div className="grid md:grid-cols-2 gap-6">
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow border-primary/20" onClick={() => setCurrentPhase('content-generator')}>
                     <CardHeader className="text-center">
-                      <CardTitle className="text-primary">🤖 Generador de Contenido con IA</CardTitle>
+                      <CardTitle className="text-primary">🤖 Generador de Contenido</CardTitle>
                       <CardDescription>
                         Crea contenido personalizado usando toda la estrategia que has definido
                       </CardDescription>
@@ -133,6 +136,20 @@ const Index = () => {
                     <CardContent>
                       <Button className="w-full" variant="default">
                         Generar Contenido
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border-secondary/20" onClick={() => setCurrentPhase('editorial-calendar')}>
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-secondary">📅 Calendario Editorial</CardTitle>
+                      <CardDescription>
+                        Planifica y organiza todo tu contenido en un calendario visual
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full" variant="secondary">
+                        Ver Calendario
                       </Button>
                     </CardContent>
                   </Card>
