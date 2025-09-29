@@ -13,11 +13,12 @@ import { HashtagGeneratorForm } from "@/components/HashtagGeneratorForm";
 import { PostTemplateForm } from "@/components/PostTemplateForm";
 import PostSchedulerForm from "@/components/PostSchedulerForm";
 import RealtimeDashboard from "@/components/RealtimeDashboard";
+import ApprovalSystemForm from "@/components/ApprovalSystemForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -49,6 +50,8 @@ const Index = () => {
         return <PostSchedulerForm />;
       case 'realtime-dashboard':
         return <RealtimeDashboard />;
+      case 'approval-system':
+        return <ApprovalSystemForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -233,7 +236,7 @@ const Index = () => {
                 </div>
 
                 {/* Sexta fila - Herramientas Avanzadas */}
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-3 gap-6">
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow border-indigo-200" onClick={() => setCurrentPhase('post-scheduler')}>
                     <CardHeader className="text-center">
                       <CardTitle className="text-indigo-600">📅 Programación de Posts</CardTitle>
@@ -258,6 +261,20 @@ const Index = () => {
                     <CardContent>
                       <Button className="w-full" variant="outline">
                         Ver Dashboard
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border-amber-200" onClick={() => setCurrentPhase('approval-system')}>
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-amber-600">✅ Sistema de Aprobación</CardTitle>
+                      <CardDescription>
+                        Workflow de revisión y aprobación de contenido antes de publicar
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full" variant="outline">
+                        Ver Aprobaciones
                       </Button>
                     </CardContent>
                   </Card>

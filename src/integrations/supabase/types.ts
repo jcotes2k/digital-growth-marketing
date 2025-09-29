@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      approval_workflows: {
+        Row: {
+          approved_at: string | null
+          approver_id: string | null
+          created_at: string
+          feedback: string | null
+          id: string
+          post_id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approver_id?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          post_id: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approver_id?: string | null
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          post_id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_workflows_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "editorial_calendar"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       editorial_calendar: {
         Row: {
           content: string
