@@ -12,19 +12,19 @@ export const PHASE_CONFIG: PhaseConfig[] = [
   { id: 'intelligent-content-strategy', name: 'Estrategia Inteligente', description: 'Estrategia con IA', order: 5, requires: ['content-strategy'] },
   { id: 'analytics-insights', name: 'Analytics & Insights', description: 'Análisis profundo', order: 6, requires: ['intelligent-content-strategy'] },
   
-  // Tool phases - available after completing core phases
-  { id: 'content-generator', name: 'Generador de Contenido', description: 'Crea contenido con IA', order: 7, requires: ['content-strategy'] },
-  { id: 'editorial-calendar', name: 'Calendario Editorial', description: 'Planifica tu contenido', order: 8, requires: ['content-strategy'] },
-  { id: 'competitor-analyzer', name: 'Análisis Competitivo', description: 'Analiza competencia', order: 9, requires: ['content-strategy'] },
-  { id: 'ai-image-bank', name: 'Banco de Imágenes IA', description: 'Genera imágenes', order: 10, requires: ['content-strategy'] },
-  { id: 'hashtag-generator', name: 'Generador de Hashtags', description: 'Hashtags relevantes', order: 11, requires: ['content-strategy'] },
-  { id: 'post-templates', name: 'Templates de Posts', description: 'Plantillas predefinidas', order: 12, requires: ['content-strategy'] },
-  { id: 'post-scheduler', name: 'Programación', description: 'Calendario interactivo', order: 13, requires: ['editorial-calendar'] },
-  { id: 'realtime-dashboard', name: 'Dashboard', description: 'Métricas en vivo', order: 14, requires: ['analytics-insights'] },
-  { id: 'approval-system', name: 'Sistema de Aprobación', description: 'Workflow de revisión', order: 15, requires: ['editorial-calendar'] },
-  { id: 'team-collaboration', name: 'Colaboración', description: 'Trabajo en equipo', order: 16, requires: ['approval-system'] },
-  { id: 'sentiment-analysis', name: 'Análisis de Sentimientos', description: 'Monitorea menciones', order: 17, requires: ['analytics-insights'] },
-  { id: 'reports-roi', name: 'Reportes y ROI', description: 'Exporta y calcula ROI', order: 18, requires: ['analytics-insights'] },
+  // Tool phases - available after completing core phases (all unlock after phase 5)
+  { id: 'content-generator', name: 'Generador de Contenido', description: 'Crea contenido con IA', order: 7, requires: ['intelligent-content-strategy'] },
+  { id: 'editorial-calendar', name: 'Calendario Editorial', description: 'Planifica tu contenido', order: 8, requires: ['intelligent-content-strategy'] },
+  { id: 'competitor-analyzer', name: 'Análisis Competitivo', description: 'Analiza competencia', order: 9, requires: ['intelligent-content-strategy'] },
+  { id: 'ai-image-bank', name: 'Banco de Imágenes IA', description: 'Genera imágenes', order: 10, requires: ['intelligent-content-strategy'] },
+  { id: 'hashtag-generator', name: 'Generador de Hashtags', description: 'Hashtags relevantes', order: 11, requires: ['intelligent-content-strategy'] },
+  { id: 'post-templates', name: 'Templates de Posts', description: 'Plantillas predefinidas', order: 12, requires: ['intelligent-content-strategy'] },
+  { id: 'post-scheduler', name: 'Programación', description: 'Calendario interactivo', order: 13, requires: ['intelligent-content-strategy'] },
+  { id: 'realtime-dashboard', name: 'Dashboard', description: 'Métricas en vivo', order: 14, requires: ['intelligent-content-strategy'] },
+  { id: 'approval-system', name: 'Sistema de Aprobación', description: 'Workflow de revisión', order: 15, requires: ['intelligent-content-strategy'] },
+  { id: 'team-collaboration', name: 'Colaboración', description: 'Trabajo en equipo', order: 16, requires: ['intelligent-content-strategy'] },
+  { id: 'sentiment-analysis', name: 'Análisis de Sentimientos', description: 'Monitorea menciones', order: 17, requires: ['intelligent-content-strategy'] },
+  { id: 'reports-roi', name: 'Reportes y ROI', description: 'Exporta y calcula ROI', order: 18, requires: ['intelligent-content-strategy'] },
 ];
 
 export const useUserProgress = () => {
