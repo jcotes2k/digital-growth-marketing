@@ -109,6 +109,45 @@ export type Database = {
         }
         Relationships: []
       }
+      sentiment_analysis: {
+        Row: {
+          analyzed_at: string
+          content: string
+          created_at: string
+          id: string
+          keywords: string[] | null
+          platform: string
+          sentiment: string
+          sentiment_score: number | null
+          source_url: string | null
+          user_id: string
+        }
+        Insert: {
+          analyzed_at?: string
+          content: string
+          created_at?: string
+          id?: string
+          keywords?: string[] | null
+          platform: string
+          sentiment: string
+          sentiment_score?: number | null
+          source_url?: string | null
+          user_id: string
+        }
+        Update: {
+          analyzed_at?: string
+          content?: string
+          created_at?: string
+          id?: string
+          keywords?: string[] | null
+          platform?: string
+          sentiment?: string
+          sentiment_score?: number | null
+          source_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       task_assignments: {
         Row: {
           assigned_by: string

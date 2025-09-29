@@ -15,11 +15,13 @@ import PostSchedulerForm from "@/components/PostSchedulerForm";
 import RealtimeDashboard from "@/components/RealtimeDashboard";
 import ApprovalSystemForm from "@/components/ApprovalSystemForm";
 import TeamCollaborationForm from "@/components/TeamCollaborationForm";
+import SentimentAnalysisForm from "@/components/SentimentAnalysisForm";
+import ReportsAndROIForm from "@/components/ReportsAndROIForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system' | 'team-collaboration'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system' | 'team-collaboration' | 'sentiment-analysis' | 'reports-roi'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -55,6 +57,10 @@ const Index = () => {
         return <ApprovalSystemForm />;
       case 'team-collaboration':
         return <TeamCollaborationForm />;
+      case 'sentiment-analysis':
+        return <SentimentAnalysisForm />;
+      case 'reports-roi':
+        return <ReportsAndROIForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -292,6 +298,37 @@ const Index = () => {
                     <CardContent>
                       <Button className="w-full" variant="outline">
                         Ver Equipo
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Séptima fila - Análisis y Reportes */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border-rose-200" onClick={() => setCurrentPhase('sentiment-analysis')}>
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-rose-600">💬 Análisis de Sentimientos</CardTitle>
+                      <CardDescription>
+                        Monitorea menciones y analiza sentimientos con IA
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full" variant="outline">
+                        Analizar Sentimientos
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border-violet-200" onClick={() => setCurrentPhase('reports-roi')}>
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-violet-600">📊 Reportes y ROI</CardTitle>
+                      <CardDescription>
+                        Genera reportes PDF y calcula retorno de inversión
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full" variant="outline">
+                        Ver Reportes
                       </Button>
                     </CardContent>
                   </Card>
