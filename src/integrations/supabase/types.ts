@@ -109,6 +109,89 @@ export type Database = {
         }
         Relationships: []
       }
+      task_assignments: {
+        Row: {
+          assigned_by: string
+          assigned_to: string
+          created_at: string
+          due_date: string | null
+          id: string
+          notes: string | null
+          post_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_by: string
+          assigned_to: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          post_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string
+          assigned_to?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          post_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_assignments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "editorial_calendar"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          id: string
+          invited_at: string
+          member_email: string
+          member_id: string | null
+          role: string
+          status: string
+          updated_at: string
+          workspace_owner: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          invited_at?: string
+          member_email: string
+          member_id?: string | null
+          role?: string
+          status?: string
+          updated_at?: string
+          workspace_owner: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          invited_at?: string
+          member_email?: string
+          member_id?: string | null
+          role?: string
+          status?: string
+          updated_at?: string
+          workspace_owner?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

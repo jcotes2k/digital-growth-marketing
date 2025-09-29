@@ -14,11 +14,12 @@ import { PostTemplateForm } from "@/components/PostTemplateForm";
 import PostSchedulerForm from "@/components/PostSchedulerForm";
 import RealtimeDashboard from "@/components/RealtimeDashboard";
 import ApprovalSystemForm from "@/components/ApprovalSystemForm";
+import TeamCollaborationForm from "@/components/TeamCollaborationForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system' | 'team-collaboration'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -52,6 +53,8 @@ const Index = () => {
         return <RealtimeDashboard />;
       case 'approval-system':
         return <ApprovalSystemForm />;
+      case 'team-collaboration':
+        return <TeamCollaborationForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -236,12 +239,12 @@ const Index = () => {
                 </div>
 
                 {/* Sexta fila - Herramientas Avanzadas */}
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-4 gap-6">
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow border-indigo-200" onClick={() => setCurrentPhase('post-scheduler')}>
                     <CardHeader className="text-center">
-                      <CardTitle className="text-indigo-600">📅 Programación de Posts</CardTitle>
+                      <CardTitle className="text-indigo-600">📅 Programación</CardTitle>
                       <CardDescription>
-                        Programa y gestiona tus publicaciones en un calendario editorial interactivo
+                        Calendario editorial interactivo
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -275,6 +278,20 @@ const Index = () => {
                     <CardContent>
                       <Button className="w-full" variant="outline">
                         Ver Aprobaciones
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border-cyan-200" onClick={() => setCurrentPhase('team-collaboration')}>
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-cyan-600">👥 Colaboración</CardTitle>
+                      <CardDescription>
+                        Invita miembros y asigna tareas
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full" variant="outline">
+                        Ver Equipo
                       </Button>
                     </CardContent>
                   </Card>
