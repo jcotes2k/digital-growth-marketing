@@ -5,11 +5,12 @@ import { ProductRoadmapForm } from "@/components/ProductRoadmapForm";
 import { ContentStrategyForm } from "@/components/ContentStrategyForm";
 import { IntelligentContentStrategyForm } from "@/components/IntelligentContentStrategyForm";
 import { AnalyticsInsightsForm } from "@/components/AnalyticsInsightsForm";
+import { ContentGeneratorForm } from "@/components/ContentGeneratorForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights'>('menu');
+  const [currentPhase, setCurrentPhase] = useState<'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator'>('menu');
 
   const renderPhase = () => {
     switch (currentPhase) {
@@ -25,6 +26,8 @@ const Index = () => {
         return <IntelligentContentStrategyForm />;
       case 'analytics-insights':
         return <AnalyticsInsightsForm />;
+      case 'content-generator':
+        return <ContentGeneratorForm />;
       default:
         return (
           <div className="min-h-screen bg-background p-6">
@@ -114,6 +117,23 @@ const Index = () => {
                     </CardHeader>
                     <CardContent>
                       <Button className="w-full">Ver Análisis</Button>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Cuarta fila - Generador de Contenido */}
+                <div className="grid md:grid-cols-1 gap-6 max-w-md mx-auto">
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow border-primary/20" onClick={() => setCurrentPhase('content-generator')}>
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-primary">🤖 Generador de Contenido con IA</CardTitle>
+                      <CardDescription>
+                        Crea contenido personalizado usando toda la estrategia que has definido
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button className="w-full" variant="default">
+                        Generar Contenido
+                      </Button>
                     </CardContent>
                   </Card>
                 </div>
