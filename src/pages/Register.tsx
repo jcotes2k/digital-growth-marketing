@@ -1,5 +1,7 @@
 import { RegistrationForm } from "@/components/RegistrationForm";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export default function Register() {
   return (
@@ -10,6 +12,14 @@ export default function Register() {
           <p className="text-muted-foreground">
             Crea tu cuenta y comienza a gestionar tu estrategia de contenido
           </p>
+          <div className="mt-4">
+            <Button variant="ghost" asChild>
+              <Link to="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Volver al inicio
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <div className="bg-card rounded-lg shadow-xl p-8">
