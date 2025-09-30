@@ -109,6 +109,42 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          business_sector: string
+          company_name: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          updated_at: string
+          user_id: string
+          whatsapp: string
+        }
+        Insert: {
+          business_sector: string
+          company_name?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          whatsapp: string
+        }
+        Update: {
+          business_sector?: string
+          company_name?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
       sentiment_analysis: {
         Row: {
           analyzed_at: string

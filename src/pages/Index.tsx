@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { BuyerPersonaForm } from "@/components/BuyerPersonaForm";
 import { BusinessCanvasForm } from "@/components/BusinessCanvasForm";
 import { ProductRoadmapForm } from "@/components/ProductRoadmapForm";
@@ -217,9 +218,16 @@ const Index = () => {
 
               <div className="mb-8 text-center">
                 <h1 className="text-4xl font-bold mb-4">Metodología de Negocio</h1>
-                <p className="text-xl text-muted-foreground">
+                <p className="text-xl text-muted-foreground mb-4">
                   {user ? "Completa las fases en orden para desbloquear nuevas herramientas" : "Inicia sesión para guardar tu progreso"}
                 </p>
+                {!user && (
+                  <div className="flex justify-center gap-4">
+                    <Button asChild size="lg">
+                      <Link to="/register">Crear Cuenta</Link>
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-6">
