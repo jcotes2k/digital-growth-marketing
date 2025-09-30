@@ -22,8 +22,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useUserProgress } from "@/hooks/use-user-progress";
-import { Lock, CheckCircle2, Award } from "lucide-react";
+import { Lock, CheckCircle2, Award, Crown, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import type { SubscriptionPlan } from "@/types/user-progress";
 
 type Phase = 'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system' | 'team-collaboration' | 'sentiment-analysis' | 'reports-roi';
 
@@ -35,20 +36,44 @@ interface PhaseCardProps {
   isCompleted: boolean;
   onClick: () => void;
   className?: string;
+  requiredPlan?: SubscriptionPlan;
+  hasRequiredPlan?: boolean;
 }
 
-const PhaseCard = ({ phaseId, title, description, isUnlocked, isCompleted, onClick, className = "" }: PhaseCardProps) => {
+const getPlanBadge = (plan: SubscriptionPlan) => {
+  switch (plan) {
+    case 'pro':
+      return <Badge className="bg-blue-500 text-white text-xs shrink-0"><Zap className="h-3 w-3 mr-1" />PRO</Badge>;
+    case 'premium':
+      return <Badge className="bg-purple-500 text-white text-xs shrink-0"><Crown className="h-3 w-3 mr-1" />PREMIUM</Badge>;
+    default:
+      return null;
+  }
+};
+
+const getPlanName = (plan: SubscriptionPlan) => {
+  switch (plan) {
+    case 'free': return 'Gratis';
+    case 'pro': return 'Pro';
+    case 'premium': return 'Premium';
+  }
+};
+
+const PhaseCard = ({ phaseId, title, description, isUnlocked, isCompleted, onClick, className = "", requiredPlan, hasRequiredPlan }: PhaseCardProps) => {
+  const showPlanBadge = requiredPlan && requiredPlan !== 'free';
+  const isLockedByPlan = !hasRequiredPlan && requiredPlan && requiredPlan !== 'free';
+  
   return (
     <Card 
       className={`transition-all ${
         isUnlocked 
           ? 'cursor-pointer hover:shadow-lg hover:scale-[1.02]' 
           : 'opacity-50 cursor-not-allowed'
-      } ${isCompleted ? 'border-green-500 border-2' : ''} ${className}`}
+      } ${isCompleted ? 'border-green-500 border-2' : ''} ${isLockedByPlan ? 'border-dashed' : ''} ${className}`}
       onClick={isUnlocked ? onClick : undefined}
     >
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2 text-base">
             {isCompleted ? (
               <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
@@ -59,9 +84,12 @@ const PhaseCard = ({ phaseId, title, description, isUnlocked, isCompleted, onCli
             )}
             <span className="line-clamp-1">{title}</span>
           </CardTitle>
-          {isCompleted && (
-            <Badge className="bg-green-500 text-xs shrink-0">✓</Badge>
-          )}
+          <div className="flex gap-1">
+            {isCompleted && (
+              <Badge className="bg-green-500 text-xs shrink-0">✓</Badge>
+            )}
+            {showPlanBadge && requiredPlan && getPlanBadge(requiredPlan)}
+          </div>
         </div>
         <CardDescription className="text-sm line-clamp-2">{description}</CardDescription>
       </CardHeader>
@@ -78,16 +106,30 @@ const Index = () => {
     isPhaseCompleted,
     markPhaseComplete,
     getCompletionPercentage,
+    getRequiredPlanForPhase,
+    hasRequiredPlan,
+    subscription,
     user,
   } = useUserProgress();
 
   const handlePhaseClick = (phaseId: string) => {
     if (!isPhaseUnlocked(phaseId)) {
-      toast({
-        title: "Fase bloqueada",
-        description: "Completa las fases anteriores para desbloquear esta",
-        variant: "destructive",
-      });
+      const requiredPlan = getRequiredPlanForPhase(phaseId);
+      const hasPlan = hasRequiredPlan(phaseId);
+      
+      if (requiredPlan && !hasPlan) {
+        toast({
+          title: "Actualiza tu plan",
+          description: `Esta función requiere el plan ${getPlanName(requiredPlan)}`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Fase bloqueada",
+          description: "Completa las fases anteriores para desbloquear esta",
+          variant: "destructive",
+        });
+      }
       return;
     }
     setCurrentPhase(phaseId as Phase);
@@ -156,6 +198,18 @@ const Index = () => {
                         {completionPercentage}% completado
                       </p>
                     </div>
+                    {subscription && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">Plan actual:</span>
+                        {subscription.plan === 'free' ? (
+                          <Badge variant="outline">Gratis</Badge>
+                        ) : subscription.plan === 'pro' ? (
+                          <Badge className="bg-blue-500"><Zap className="h-3 w-3 mr-1" />Pro</Badge>
+                        ) : (
+                          <Badge className="bg-purple-500"><Crown className="h-3 w-3 mr-1" />Premium</Badge>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <Progress value={completionPercentage} className="h-3" />
                 </div>
@@ -236,6 +290,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('content-generator')}
                       onClick={() => handlePhaseClick('content-generator')}
                       className="border-blue-200"
+                      requiredPlan={getRequiredPlanForPhase('content-generator') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('content-generator')}
                     />
                     <PhaseCard
                       phaseId="editorial-calendar"
@@ -245,6 +301,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('editorial-calendar')}
                       onClick={() => handlePhaseClick('editorial-calendar')}
                       className="border-blue-200"
+                      requiredPlan={getRequiredPlanForPhase('editorial-calendar') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('editorial-calendar')}
                     />
                     <PhaseCard
                       phaseId="competitor-analyzer"
@@ -254,6 +312,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('competitor-analyzer')}
                       onClick={() => handlePhaseClick('competitor-analyzer')}
                       className="border-orange-200"
+                      requiredPlan={getRequiredPlanForPhase('competitor-analyzer') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('competitor-analyzer')}
                     />
                     <PhaseCard
                       phaseId="ai-image-bank"
@@ -263,6 +323,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('ai-image-bank')}
                       onClick={() => handlePhaseClick('ai-image-bank')}
                       className="border-purple-200"
+                      requiredPlan={getRequiredPlanForPhase('ai-image-bank') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('ai-image-bank')}
                     />
                     <PhaseCard
                       phaseId="hashtag-generator"
@@ -272,6 +334,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('hashtag-generator')}
                       onClick={() => handlePhaseClick('hashtag-generator')}
                       className="border-green-200"
+                      requiredPlan={getRequiredPlanForPhase('hashtag-generator') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('hashtag-generator')}
                     />
                     <PhaseCard
                       phaseId="post-templates"
@@ -281,6 +345,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('post-templates')}
                       onClick={() => handlePhaseClick('post-templates')}
                       className="border-blue-200"
+                      requiredPlan={getRequiredPlanForPhase('post-templates') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('post-templates')}
                     />
                     <PhaseCard
                       phaseId="post-scheduler"
@@ -290,6 +356,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('post-scheduler')}
                       onClick={() => handlePhaseClick('post-scheduler')}
                       className="border-indigo-200"
+                      requiredPlan={getRequiredPlanForPhase('post-scheduler') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('post-scheduler')}
                     />
                   </div>
                 </div>
@@ -306,6 +374,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('realtime-dashboard')}
                       onClick={() => handlePhaseClick('realtime-dashboard')}
                       className="border-emerald-200"
+                      requiredPlan={getRequiredPlanForPhase('realtime-dashboard') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('realtime-dashboard')}
                     />
                     <PhaseCard
                       phaseId="approval-system"
@@ -315,6 +385,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('approval-system')}
                       onClick={() => handlePhaseClick('approval-system')}
                       className="border-amber-200"
+                      requiredPlan={getRequiredPlanForPhase('approval-system') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('approval-system')}
                     />
                     <PhaseCard
                       phaseId="team-collaboration"
@@ -324,6 +396,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('team-collaboration')}
                       onClick={() => handlePhaseClick('team-collaboration')}
                       className="border-cyan-200"
+                      requiredPlan={getRequiredPlanForPhase('team-collaboration') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('team-collaboration')}
                     />
                     <PhaseCard
                       phaseId="sentiment-analysis"
@@ -333,6 +407,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('sentiment-analysis')}
                       onClick={() => handlePhaseClick('sentiment-analysis')}
                       className="border-rose-200"
+                      requiredPlan={getRequiredPlanForPhase('sentiment-analysis') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('sentiment-analysis')}
                     />
                     <PhaseCard
                       phaseId="reports-roi"
@@ -342,6 +418,8 @@ const Index = () => {
                       isCompleted={isPhaseCompleted('reports-roi')}
                       onClick={() => handlePhaseClick('reports-roi')}
                       className="border-violet-200"
+                      requiredPlan={getRequiredPlanForPhase('reports-roi') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('reports-roi')}
                     />
                   </div>
                 </div>

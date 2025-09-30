@@ -1,34 +1,44 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { UserProgress, PhaseConfig } from '@/types/user-progress';
+import type { UserProgress, PhaseConfig, UserSubscription, SubscriptionPlan } from '@/types/user-progress';
 
-// Define phase dependencies and order
+// Define phase dependencies, order, and plan requirements
 export const PHASE_CONFIG: PhaseConfig[] = [
-  { id: 'buyer-persona', name: 'Buyer Persona', description: 'Define tu cliente ideal', order: 1 },
-  { id: 'business-canvas', name: 'Business Canvas', description: 'Modelo de negocio', order: 2, requires: ['buyer-persona'] },
-  { id: 'product-roadmap', name: 'Product Roadmap', description: 'Planificación de producto', order: 3, requires: ['business-canvas'] },
-  { id: 'content-strategy', name: 'Estrategia de Contenido', description: 'Define tu estrategia', order: 4, requires: ['product-roadmap'] },
-  { id: 'intelligent-content-strategy', name: 'Estrategia Inteligente', description: 'Estrategia con IA', order: 5, requires: ['content-strategy'] },
-  { id: 'analytics-insights', name: 'Analytics & Insights', description: 'Análisis profundo', order: 6, requires: ['intelligent-content-strategy'] },
+  // Core phases - FREE plan
+  { id: 'buyer-persona', name: 'Buyer Persona', description: 'Define tu cliente ideal', order: 1, requiredPlan: 'free' },
+  { id: 'business-canvas', name: 'Business Canvas', description: 'Modelo de negocio', order: 2, requires: ['buyer-persona'], requiredPlan: 'free' },
+  { id: 'product-roadmap', name: 'Product Roadmap', description: 'Planificación de producto', order: 3, requires: ['business-canvas'], requiredPlan: 'free' },
+  { id: 'content-strategy', name: 'Estrategia de Contenido', description: 'Define tu estrategia', order: 4, requires: ['product-roadmap'], requiredPlan: 'free' },
+  { id: 'intelligent-content-strategy', name: 'Estrategia Inteligente', description: 'Estrategia con IA', order: 5, requires: ['content-strategy'], requiredPlan: 'free' },
+  { id: 'analytics-insights', name: 'Analytics & Insights', description: 'Análisis profundo', order: 6, requires: ['intelligent-content-strategy'], requiredPlan: 'free' },
   
-  // Tool phases - available after completing core phases (all unlock after phase 5)
-  { id: 'content-generator', name: 'Generador de Contenido', description: 'Crea contenido con IA', order: 7, requires: ['intelligent-content-strategy'] },
-  { id: 'editorial-calendar', name: 'Calendario Editorial', description: 'Planifica tu contenido', order: 8, requires: ['intelligent-content-strategy'] },
-  { id: 'competitor-analyzer', name: 'Análisis Competitivo', description: 'Analiza competencia', order: 9, requires: ['intelligent-content-strategy'] },
-  { id: 'ai-image-bank', name: 'Banco de Imágenes IA', description: 'Genera imágenes', order: 10, requires: ['intelligent-content-strategy'] },
-  { id: 'hashtag-generator', name: 'Generador de Hashtags', description: 'Hashtags relevantes', order: 11, requires: ['intelligent-content-strategy'] },
-  { id: 'post-templates', name: 'Templates de Posts', description: 'Plantillas predefinidas', order: 12, requires: ['intelligent-content-strategy'] },
-  { id: 'post-scheduler', name: 'Programación', description: 'Calendario interactivo', order: 13, requires: ['intelligent-content-strategy'] },
-  { id: 'realtime-dashboard', name: 'Dashboard', description: 'Métricas en vivo', order: 14, requires: ['intelligent-content-strategy'] },
-  { id: 'approval-system', name: 'Sistema de Aprobación', description: 'Workflow de revisión', order: 15, requires: ['intelligent-content-strategy'] },
-  { id: 'team-collaboration', name: 'Colaboración', description: 'Trabajo en equipo', order: 16, requires: ['intelligent-content-strategy'] },
-  { id: 'sentiment-analysis', name: 'Análisis de Sentimientos', description: 'Monitorea menciones', order: 17, requires: ['intelligent-content-strategy'] },
-  { id: 'reports-roi', name: 'Reportes y ROI', description: 'Exporta y calcula ROI', order: 18, requires: ['intelligent-content-strategy'] },
+  // Content Tools - PRO plan (until competitor-analyzer)
+  { id: 'content-generator', name: 'Generador de Contenido', description: 'Crea contenido con IA', order: 7, requires: ['intelligent-content-strategy'], requiredPlan: 'pro' },
+  { id: 'editorial-calendar', name: 'Calendario Editorial', description: 'Planifica tu contenido', order: 8, requires: ['intelligent-content-strategy'], requiredPlan: 'pro' },
+  { id: 'competitor-analyzer', name: 'Análisis Competitivo', description: 'Analiza competencia', order: 9, requires: ['intelligent-content-strategy'], requiredPlan: 'pro' },
+  
+  // Advanced Tools - PREMIUM plan
+  { id: 'ai-image-bank', name: 'Banco de Imágenes IA', description: 'Genera imágenes', order: 10, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'hashtag-generator', name: 'Generador de Hashtags', description: 'Hashtags relevantes', order: 11, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'post-templates', name: 'Templates de Posts', description: 'Plantillas predefinidas', order: 12, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'post-scheduler', name: 'Programación', description: 'Calendario interactivo', order: 13, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'realtime-dashboard', name: 'Dashboard', description: 'Métricas en vivo', order: 14, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'approval-system', name: 'Sistema de Aprobación', description: 'Workflow de revisión', order: 15, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'team-collaboration', name: 'Colaboración', description: 'Trabajo en equipo', order: 16, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'sentiment-analysis', name: 'Análisis de Sentimientos', description: 'Monitorea menciones', order: 17, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'reports-roi', name: 'Reportes y ROI', description: 'Exporta y calcula ROI', order: 18, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
 ];
+
+const PLAN_HIERARCHY: Record<SubscriptionPlan, number> = {
+  'free': 1,
+  'pro': 2,
+  'premium': 3,
+};
 
 export const useUserProgress = () => {
   const [progress, setProgress] = useState<Map<string, UserProgress>>(new Map());
+  const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
@@ -47,23 +57,48 @@ export const useUserProgress = () => {
 
     setUser(user);
 
-    const { data, error } = await supabase
+    // Load user progress
+    const { data: progressData, error: progressError } = await supabase
       .from('user_progress')
       .select('*')
       .eq('user_id', user.id);
 
-    if (error) {
-      console.error('Error loading progress:', error);
-      setIsLoading(false);
-      return;
+    if (progressError) {
+      console.error('Error loading progress:', progressError);
     }
 
     const progressMap = new Map<string, UserProgress>();
-    data?.forEach(item => {
+    progressData?.forEach(item => {
       progressMap.set(item.phase, item as UserProgress);
     });
-
     setProgress(progressMap);
+
+    // Load user subscription
+    const { data: subData, error: subError } = await supabase
+      .from('user_subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (subError && subError.code !== 'PGRST116') {
+      console.error('Error loading subscription:', subError);
+    }
+
+    // If no subscription exists, create a free one
+    if (!subData) {
+      const { data: newSub, error: insertError } = await supabase
+        .from('user_subscriptions')
+        .insert({ user_id: user.id, plan: 'free' })
+        .select()
+        .single();
+
+      if (!insertError && newSub) {
+        setSubscription(newSub as UserSubscription);
+      }
+    } else {
+      setSubscription(subData as UserSubscription);
+    }
+
     setIsLoading(false);
   };
 
@@ -111,8 +146,19 @@ export const useUserProgress = () => {
   const isPhaseUnlocked = (phaseId: string): boolean => {
     const phase = PHASE_CONFIG.find(p => p.id === phaseId);
     
-    if (!phase || !phase.requires || phase.requires.length === 0) {
-      return true; // No requirements, always unlocked
+    if (!phase) return false;
+
+    // Check if user has required subscription plan
+    const userPlanLevel = subscription ? PLAN_HIERARCHY[subscription.plan] : PLAN_HIERARCHY['free'];
+    const requiredPlanLevel = PLAN_HIERARCHY[phase.requiredPlan];
+    
+    if (userPlanLevel < requiredPlanLevel) {
+      return false; // User doesn't have required plan
+    }
+
+    // Check phase dependencies
+    if (!phase.requires || phase.requires.length === 0) {
+      return true; // No phase requirements, unlocked if plan is sufficient
     }
 
     // Check if all required phases are completed
@@ -120,6 +166,21 @@ export const useUserProgress = () => {
       const requiredProgress = progress.get(requiredPhase);
       return requiredProgress?.completed === true;
     });
+  };
+
+  const getRequiredPlanForPhase = (phaseId: string): SubscriptionPlan | null => {
+    const phase = PHASE_CONFIG.find(p => p.id === phaseId);
+    return phase ? phase.requiredPlan : null;
+  };
+
+  const hasRequiredPlan = (phaseId: string): boolean => {
+    const requiredPlan = getRequiredPlanForPhase(phaseId);
+    if (!requiredPlan || !subscription) return false;
+    
+    const userPlanLevel = PLAN_HIERARCHY[subscription.plan];
+    const requiredPlanLevel = PLAN_HIERARCHY[requiredPlan];
+    
+    return userPlanLevel >= requiredPlanLevel;
   };
 
   const isPhaseCompleted = (phaseId: string): boolean => {
@@ -146,12 +207,15 @@ export const useUserProgress = () => {
 
   return {
     progress,
+    subscription,
     isLoading,
     markPhaseComplete,
     isPhaseUnlocked,
     isPhaseCompleted,
     getCompletionPercentage,
     getNextPhase,
+    getRequiredPlanForPhase,
+    hasRequiredPlan,
     user,
   };
 };
