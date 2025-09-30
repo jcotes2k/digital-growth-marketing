@@ -144,6 +144,9 @@ export const useUserProgress = () => {
   };
 
   const isPhaseUnlocked = (phaseId: string): boolean => {
+    // Require authentication for all phases
+    if (!user) return false;
+    
     const phase = PHASE_CONFIG.find(p => p.id === phaseId);
     
     if (!phase) return false;
