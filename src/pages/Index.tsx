@@ -219,11 +219,14 @@ const Index = () => {
               <div className="mb-8 text-center">
                 <h1 className="text-4xl font-bold mb-4">Plataforma de Marketing de Contenido</h1>
                 <p className="text-xl text-muted-foreground mb-4">
-                  {user ? "Completa las fases en orden para desbloquear nuevas herramientas" : "Inicia sesión para guardar tu progreso"}
+                  {user ? "Completa las fases en orden para desbloquear nuevas herramientas" : "Inicia sesión o crea una cuenta para guardar tu progreso"}
                 </p>
                 {!user && (
                   <div className="flex justify-center gap-4">
-                    <Button asChild size="lg">
+                    <Button asChild size="lg" variant="default">
+                      <Link to="/auth">Iniciar Sesión</Link>
+                    </Button>
+                    <Button asChild size="lg" variant="outline">
                       <Link to="/register">Crear Cuenta</Link>
                     </Button>
                   </div>
