@@ -217,7 +217,7 @@ const Index = () => {
               )}
 
               <div className="mb-8 text-center">
-                <h1 className="text-4xl font-bold mb-4">Metodología de Negocio</h1>
+                <h1 className="text-4xl font-bold mb-4">Plataforma de Marketing de Contenido</h1>
                 <p className="text-xl text-muted-foreground mb-4">
                   {user ? "Completa las fases en orden para desbloquear nuevas herramientas" : "Inicia sesión para guardar tu progreso"}
                 </p>
