@@ -240,13 +240,13 @@ export function RegistrationForm() {
                   />
                   <PlanCard
                     name="PRO"
-                    price="$29"
+                    price="$19"
                     period="/mes"
                     features={[
                       "Todo lo de Gratuito",
                       "Herramientas hasta Competencia",
-                      "Análisis de sentimientos",
-                      "Soporte prioritario",
+                      "Exportar PDF",
+                      "Soporte vía email",
                     ]}
                     isSelected={field.value === "pro"}
                     onClick={() => field.onChange("pro")}
@@ -254,13 +254,13 @@ export function RegistrationForm() {
                   />
                   <PlanCard
                     name="PREMIUM"
-                    price="$79"
+                    price="$39"
                     period="/mes"
                     features={[
                       "Todo lo de PRO",
                       "Todas las herramientas",
                       "Dashboard en tiempo real",
-                      "Soporte dedicado 24/7",
+                      "Soporte por WhatsApp y ChatBot",
                     ]}
                     isSelected={field.value === "premium"}
                     onClick={() => field.onChange("premium")}
