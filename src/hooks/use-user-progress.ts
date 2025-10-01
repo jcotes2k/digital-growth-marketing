@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { UserProgress, PhaseConfig, UserSubscription, SubscriptionPlan } from '@/types/user-progress';
+import type { UserRole } from '@/types/user-roles';
 
 // Define phase dependencies, order, and plan requirements
 export const PHASE_CONFIG: PhaseConfig[] = [
@@ -41,6 +42,7 @@ export const useUserProgress = () => {
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -56,6 +58,16 @@ export const useUserProgress = () => {
     }
 
     setUser(user);
+
+    // Check if user is admin
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    setIsAdmin(!!roleData);
 
     // Load user progress
     const { data: progressData, error: progressError } = await supabase
@@ -147,6 +159,9 @@ export const useUserProgress = () => {
     // Require authentication for all phases
     if (!user) return false;
     
+    // Admins have access to everything
+    if (isAdmin) return true;
+    
     const phase = PHASE_CONFIG.find(p => p.id === phaseId);
     
     if (!phase) return false;
@@ -177,6 +192,9 @@ export const useUserProgress = () => {
   };
 
   const hasRequiredPlan = (phaseId: string): boolean => {
+    // Admins bypass plan requirements
+    if (isAdmin) return true;
+    
     const requiredPlan = getRequiredPlanForPhase(phaseId);
     if (!requiredPlan || !subscription) return false;
     
@@ -220,5 +238,6 @@ export const useUserProgress = () => {
     getRequiredPlanForPhase,
     hasRequiredPlan,
     user,
+    isAdmin,
   };
 };
