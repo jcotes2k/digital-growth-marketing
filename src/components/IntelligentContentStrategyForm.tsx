@@ -19,8 +19,11 @@ import { FormatsForm } from "./intelligent-forms/FormatsForm";
 import { BudgetForm } from "./intelligent-forms/BudgetForm";
 import { FaqsCrisisForm } from "./intelligent-forms/FaqsCrisisForm";
 import { WorkflowForm } from "./intelligent-forms/WorkflowForm";
-import { ChevronLeft, ChevronRight, Eye, Sparkles, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Sparkles, RefreshCw, Lightbulb, Zap } from "lucide-react";
 import { generateIntelligentStrategy } from "@/utils/strategy-generator";
+import { ContentIdeasGenerator } from "./ContentIdeasGenerator";
+import { PlatformOptimizer } from "./PlatformOptimizer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const intelligentContentStrategySchema = z.object({
   brandConcept: z.object({
@@ -103,6 +106,7 @@ const steps = [
   { title: "Presupuesto", component: BudgetForm, icon: "💰" },
   { title: "FAQ's y Crisis", component: FaqsCrisisForm, icon: "⚡" },
   { title: "Workflow", component: WorkflowForm, icon: "🔄" },
+  { title: "Herramientas IA", component: null, icon: "✨" }, // Special step for AI tools
 ];
 
 export const IntelligentContentStrategyForm = () => {
@@ -232,6 +236,7 @@ export const IntelligentContentStrategyForm = () => {
 
   const CurrentStepComponent = steps[currentStep].component;
   const progress = ((currentStep + 1) / steps.length) * 100;
+  const isAIToolsStep = currentStep === steps.length - 1;
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -290,7 +295,28 @@ export const IntelligentContentStrategyForm = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <CurrentStepComponent control={form.control} />
+                  {isAIToolsStep ? (
+                    <Tabs defaultValue="ideas" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="ideas">
+                          <Lightbulb className="w-4 h-4 mr-2" />
+                          Generador de Ideas
+                        </TabsTrigger>
+                        <TabsTrigger value="optimizer">
+                          <Zap className="w-4 h-4 mr-2" />
+                          Optimizador
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="ideas">
+                        <ContentIdeasGenerator contentStrategy={form.getValues()} />
+                      </TabsContent>
+                      <TabsContent value="optimizer">
+                        <PlatformOptimizer contentStrategy={form.getValues()} />
+                      </TabsContent>
+                    </Tabs>
+                  ) : (
+                    CurrentStepComponent && <CurrentStepComponent control={form.control} />
+                  )}
                 </CardContent>
               </Card>
 

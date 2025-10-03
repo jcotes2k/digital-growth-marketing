@@ -154,6 +154,54 @@ export type Database = {
         }
         Relationships: []
       }
+      content_ideas: {
+        Row: {
+          created_at: string
+          description: string
+          generated_by_ai: boolean | null
+          id: string
+          keywords: string[] | null
+          platform: string
+          suggested_format: string | null
+          title: string
+          topic: string
+          trending_score: number | null
+          updated_at: string
+          used: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          generated_by_ai?: boolean | null
+          id?: string
+          keywords?: string[] | null
+          platform: string
+          suggested_format?: string | null
+          title: string
+          topic: string
+          trending_score?: number | null
+          updated_at?: string
+          used?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          generated_by_ai?: boolean | null
+          id?: string
+          keywords?: string[] | null
+          platform?: string
+          suggested_format?: string | null
+          title?: string
+          topic?: string
+          trending_score?: number | null
+          updated_at?: string
+          used?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       content_performance: {
         Row: {
           calendar_id: string | null
@@ -349,6 +397,45 @@ export type Database = {
           template?: Json
           thumbnail?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_optimized_content: {
+        Row: {
+          best_posting_time: string | null
+          created_at: string
+          engagement_prediction: number | null
+          hashtags: string[] | null
+          id: string
+          optimal_length: number | null
+          optimized_content: string
+          original_content: string
+          platform: string
+          user_id: string
+        }
+        Insert: {
+          best_posting_time?: string | null
+          created_at?: string
+          engagement_prediction?: number | null
+          hashtags?: string[] | null
+          id?: string
+          optimal_length?: number | null
+          optimized_content: string
+          original_content: string
+          platform: string
+          user_id: string
+        }
+        Update: {
+          best_posting_time?: string | null
+          created_at?: string
+          engagement_prediction?: number | null
+          hashtags?: string[] | null
+          id?: string
+          optimal_length?: number | null
+          optimized_content?: string
+          original_content?: string
+          platform?: string
+          user_id?: string
         }
         Relationships: []
       }
