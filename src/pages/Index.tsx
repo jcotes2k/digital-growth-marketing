@@ -16,7 +16,7 @@ import PostSchedulerForm from "@/components/PostSchedulerForm";
 import RealtimeDashboard from "@/components/RealtimeDashboard";
 import ApprovalSystemForm from "@/components/ApprovalSystemForm";
 import TeamCollaborationForm from "@/components/TeamCollaborationForm";
-import SentimentAnalysisForm from "@/components/SentimentAnalysisForm";
+import { SentimentAnalysisForm } from "@/components/SentimentAnalysisForm";
 import ReportsAndROIForm from "@/components/ReportsAndROIForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

@@ -19,10 +19,12 @@ import { FormatsForm } from "./intelligent-forms/FormatsForm";
 import { BudgetForm } from "./intelligent-forms/BudgetForm";
 import { FaqsCrisisForm } from "./intelligent-forms/FaqsCrisisForm";
 import { WorkflowForm } from "./intelligent-forms/WorkflowForm";
-import { ChevronLeft, ChevronRight, Eye, Sparkles, RefreshCw, Lightbulb, Zap } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Sparkles, RefreshCw, Lightbulb, Zap, Brain, Hash } from "lucide-react";
 import { generateIntelligentStrategy } from "@/utils/strategy-generator";
 import { ContentIdeasGenerator } from "./ContentIdeasGenerator";
 import { PlatformOptimizer } from "./PlatformOptimizer";
+import { SentimentAnalysisForm } from "./SentimentAnalysisForm";
+import { HashtagGeneratorForm } from "./HashtagGeneratorForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const intelligentContentStrategySchema = z.object({
@@ -297,14 +299,22 @@ export const IntelligentContentStrategyForm = () => {
                 <CardContent>
                   {isAIToolsStep ? (
                     <Tabs defaultValue="ideas" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
+                      <TabsList className="grid w-full grid-cols-4">
                         <TabsTrigger value="ideas">
                           <Lightbulb className="w-4 h-4 mr-2" />
-                          Generador de Ideas
+                          Ideas
                         </TabsTrigger>
                         <TabsTrigger value="optimizer">
                           <Zap className="w-4 h-4 mr-2" />
-                          Optimizador
+                          Optimizar
+                        </TabsTrigger>
+                        <TabsTrigger value="sentiment">
+                          <Brain className="w-4 h-4 mr-2" />
+                          Sentimiento
+                        </TabsTrigger>
+                        <TabsTrigger value="hashtags">
+                          <Hash className="w-4 h-4 mr-2" />
+                          Hashtags
                         </TabsTrigger>
                       </TabsList>
                       <TabsContent value="ideas">
@@ -312,6 +322,12 @@ export const IntelligentContentStrategyForm = () => {
                       </TabsContent>
                       <TabsContent value="optimizer">
                         <PlatformOptimizer contentStrategy={form.getValues()} />
+                      </TabsContent>
+                      <TabsContent value="sentiment">
+                        <SentimentAnalysisForm />
+                      </TabsContent>
+                      <TabsContent value="hashtags">
+                        <HashtagGeneratorForm />
                       </TabsContent>
                     </Tabs>
                   ) : (
