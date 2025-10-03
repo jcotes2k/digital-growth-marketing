@@ -109,6 +109,45 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_content: {
+        Row: {
+          content: string
+          created_at: string
+          hashtags: string[] | null
+          id: string
+          platform: string | null
+          score_data: Json | null
+          style: string
+          topic: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          platform?: string | null
+          score_data?: Json | null
+          style: string
+          topic?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          platform?: string | null
+          score_data?: Json | null
+          style?: string
+          topic?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           business_sector: string

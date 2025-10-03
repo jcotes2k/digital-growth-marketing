@@ -7,13 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles, Award, TrendingUp, Eye, Zap } from 'lucide-react';
+import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles, Award, TrendingUp, Eye, Zap, History } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ContentVariant } from '@/types/content-variant';
 import { analyzeContentQuality, getScoreColor, getScoreBadgeVariant, getScoreLabel, ContentScore } from '@/utils/content-scorer';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ContentHistory } from './ContentHistory';
 
 interface ContentGeneratorFormData {
   contentType: string;
@@ -29,6 +31,8 @@ export const ContentGeneratorForm = () => {
   const [adaptedContent, setAdaptedContent] = useState<Record<string, ContentVariant>>({});
   const [adaptingTo, setAdaptingTo] = useState<string | null>(null);
   const [contentScores, setContentScores] = useState<Record<string, ContentScore>>({});
+  const [activeTab, setActiveTab] = useState('generator');
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
   const { toast } = useToast();
 
   const form = useForm<ContentGeneratorFormData>({
@@ -99,6 +103,9 @@ export const ContentGeneratorForm = () => {
       });
       setContentScores(scores);
       
+      // Save variants to database
+      await saveVariantsToHistory(functionData.variants, data.topic, scores);
+      
       toast({
         title: "Variantes generadas exitosamente",
         description: `Se generaron ${functionData.variants.length} variantes de contenido con análisis de calidad`,
@@ -112,6 +119,36 @@ export const ContentGeneratorForm = () => {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const saveVariantsToHistory = async (variants: ContentVariant[], topic: string, scores: Record<string, ContentScore>) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const recordsToInsert = variants.map(variant => ({
+        user_id: user.id,
+        content: variant.content,
+        style: variant.style,
+        platform: variant.bestFor || null,
+        hashtags: variant.hashtags,
+        score_data: scores[variant.id] as any,
+        topic: topic,
+      }));
+
+      const { error } = await supabase
+        .from('generated_content')
+        .insert(recordsToInsert);
+
+      if (error) {
+        console.error('Error inserting records:', error);
+        return;
+      }
+
+      setHistoryRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error('Error saving to history:', error);
     }
   };
 
@@ -201,14 +238,37 @@ export const ContentGeneratorForm = () => {
 
   const selectedVariant = variants.find(v => v.id === selectedVariantId);
 
+  const handleReuseContent = (content: string, hashtags: string[]) => {
+    form.setValue('topic', content.substring(0, 100));
+    setActiveTab('generator');
+    toast({
+      title: "Contenido reutilizado",
+      description: "El tema se ha copiado al generador",
+    });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-4">Generador de Contenido Multi-Variante con IA</h1>
         <p className="text-muted-foreground">
-          Genera 3-5 variantes de contenido con diferentes estilos y elige la mejor
+          Genera variantes de contenido con diferentes estilos y gestiona tu historial
         </p>
       </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+          <TabsTrigger value="generator">
+            <Sparkles className="h-4 w-4 mr-2" />
+            Generador
+          </TabsTrigger>
+          <TabsTrigger value="history">
+            <History className="h-4 w-4 mr-2" />
+            Historial ({historyRefreshTrigger})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="generator" className="space-y-8">
 
       <div className="grid gap-8 lg:grid-cols-[350px_1fr]">
         <Card className="h-fit">
@@ -764,6 +824,12 @@ export const ContentGeneratorForm = () => {
           )}
         </div>
       </div>
+        </TabsContent>
+
+        <TabsContent value="history">
+          <ContentHistory onReuseContent={handleReuseContent} key={historyRefreshTrigger} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
