@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles, Award, TrendingUp, Eye, Zap, History } from 'lucide-react';
+import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles, Award, TrendingUp, Eye, Zap, History, CalendarPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ContentVariant } from '@/types/content-variant';
@@ -16,6 +16,12 @@ import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ContentHistory } from './ContentHistory';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 interface ContentGeneratorFormData {
   contentType: string;
@@ -33,6 +39,12 @@ export const ContentGeneratorForm = () => {
   const [contentScores, setContentScores] = useState<Record<string, ContentScore>>({});
   const [activeTab, setActiveTab] = useState('generator');
   const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState(0);
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [variantToSchedule, setVariantToSchedule] = useState<ContentVariant | null>(null);
+  const [scheduleDate, setScheduleDate] = useState<Date>();
+  const [scheduleTime, setScheduleTime] = useState('12:00');
+  const [schedulePlatform, setSchedulePlatform] = useState('');
+  const [isScheduling, setIsScheduling] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<ContentGeneratorFormData>({
@@ -245,6 +257,75 @@ export const ContentGeneratorForm = () => {
       title: "Contenido reutilizado",
       description: "El tema se ha copiado al generador",
     });
+  };
+
+  const openScheduleDialog = (variant: ContentVariant) => {
+    setVariantToSchedule(variant);
+    setSchedulePlatform(variant.bestFor || '');
+    setScheduleDialogOpen(true);
+  };
+
+  const scheduleToCalendar = async () => {
+    if (!variantToSchedule || !scheduleDate || !schedulePlatform) {
+      toast({
+        title: "Faltan datos",
+        description: "Por favor selecciona fecha y plataforma",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsScheduling(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "No autenticado",
+          description: "Debes iniciar sesión para programar publicaciones",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const [hours, minutes] = scheduleTime.split(':');
+      const scheduledDateTime = new Date(scheduleDate);
+      scheduledDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      const { error } = await supabase.from('editorial_calendar').insert({
+        user_id: user.id,
+        title: `Post ${variantToSchedule.style}`,
+        content: variantToSchedule.content,
+        platform: schedulePlatform,
+        content_type: 'social-post',
+        scheduled_date: format(scheduleDate, 'yyyy-MM-dd'),
+        scheduled_time: scheduleTime,
+        status: 'planned',
+        tags: variantToSchedule.hashtags,
+        generated_by_ai: true,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Programado exitosamente",
+        description: `Publicación programada para ${format(scheduleDate, 'PPP', { locale: es })} a las ${scheduleTime}`,
+      });
+
+      setScheduleDialogOpen(false);
+      setVariantToSchedule(null);
+      setScheduleDate(undefined);
+      setScheduleTime('12:00');
+      setSchedulePlatform('');
+    } catch (error: any) {
+      console.error('Error scheduling:', error);
+      toast({
+        title: "Error al programar",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsScheduling(false);
+    }
   };
 
   return (
@@ -577,6 +658,18 @@ export const ContentGeneratorForm = () => {
                           <Download className="mr-2 h-3 w-3" />
                           Descargar
                         </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openScheduleDialog(variant);
+                          }}
+                          variant="default"
+                          size="sm"
+                          className="flex-1"
+                        >
+                          <CalendarPlus className="mr-2 h-3 w-3" />
+                          Programar
+                        </Button>
                       </div>
                     </CardContent>
                     </Card>
@@ -830,6 +923,111 @@ export const ContentGeneratorForm = () => {
           <ContentHistory onReuseContent={handleReuseContent} key={historyRefreshTrigger} />
         </TabsContent>
       </Tabs>
+
+      {/* Diálogo para programar en calendario */}
+      <Dialog open={scheduleDialogOpen} onOpenChange={setScheduleDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Programar Publicación</DialogTitle>
+            <DialogDescription>
+              Selecciona fecha, hora y plataforma para esta publicación
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {variantToSchedule && (
+              <div className="bg-muted p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">{variantToSchedule.style}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {variantToSchedule.content}
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Fecha de publicación</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !scheduleDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {scheduleDate ? format(scheduleDate, 'PPP', { locale: es }) : <span>Selecciona una fecha</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={scheduleDate}
+                    onSelect={setScheduleDate}
+                    initialFocus
+                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                    locale={es}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Hora de publicación</label>
+              <Input
+                type="time"
+                value={scheduleTime}
+                onChange={(e) => setScheduleTime(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Plataforma</label>
+              <Select value={schedulePlatform} onValueChange={setSchedulePlatform}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona la plataforma" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Instagram">Instagram</SelectItem>
+                  <SelectItem value="Facebook">Facebook</SelectItem>
+                  <SelectItem value="Twitter">Twitter/X</SelectItem>
+                  <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                  <SelectItem value="TikTok">TikTok</SelectItem>
+                  <SelectItem value="YouTube">YouTube</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setScheduleDialogOpen(false)}
+              className="flex-1"
+              disabled={isScheduling}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={scheduleToCalendar}
+              className="flex-1"
+              disabled={isScheduling || !scheduleDate || !schedulePlatform}
+            >
+              {isScheduling ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Programando...
+                </>
+              ) : (
+                <>
+                  <CalendarPlus className="mr-2 h-4 w-4" />
+                  Programar
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
