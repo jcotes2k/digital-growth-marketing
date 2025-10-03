@@ -5,6 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Sparkles, Library } from 'lucide-react';
+import { CanvasTemplateLibrary } from './CanvasTemplateLibrary';
+import { AICanvasGenerator } from './AICanvasGenerator';
+import { useState as useReactState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { BuyerPersona } from '@/types/buyer-persona';
+import { CompanyInfo } from '@/types/company-info';
 import { ProblemaForm } from './canvas-forms/ProblemaForm';
 import { SolucionForm } from './canvas-forms/SolucionForm';
 import { PropuestaValorForm } from './canvas-forms/PropuestaValorForm';
@@ -37,6 +46,11 @@ const tabs = [
 export const BusinessCanvasForm = () => {
   const [activeTab, setActiveTab] = useState('problema');
   const [formData, setFormData] = useState<Partial<BusinessCanvas>>({});
+  const [showTemplates, setShowTemplates] = useReactState(false);
+  const [showAIGenerator, setShowAIGenerator] = useReactState(false);
+  const [buyerPersonas, setBuyerPersonas] = useReactState<BuyerPersona[]>([]);
+  const [companyInfo, setCompanyInfo] = useReactState<CompanyInfo | null>(null);
+  const [loadingPersonas, setLoadingPersonas] = useReactState(false);
   const form = useForm<BusinessCanvas>({
     defaultValues: {
       mainProblems: '',
@@ -68,6 +82,67 @@ export const BusinessCanvasForm = () => {
     setFormData(watchedData);
   }, [watchedData]);
 
+  React.useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    setLoadingPersonas(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Load buyer personas from user_progress
+      const { data: progressData } = await supabase
+        .from('user_progress')
+        .select('progress_data')
+        .eq('user_id', user.id)
+        .eq('phase', 'buyer-persona')
+        .eq('completed', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (progressData?.progress_data) {
+        const data = progressData.progress_data as any;
+        const personas = data.personas || [];
+        setBuyerPersonas(personas as BuyerPersona[]);
+      }
+
+      // Load company info
+      const { data: companyData } = await supabase
+        .from('user_progress')
+        .select('progress_data')
+        .eq('user_id', user.id)
+        .eq('phase', 'company-info')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (companyData?.progress_data) {
+        setCompanyInfo(companyData.progress_data as unknown as CompanyInfo);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    } finally {
+      setLoadingPersonas(false);
+    }
+  };
+
+  const handleTemplateSelected = (template: Partial<BusinessCanvas>) => {
+    Object.entries(template).forEach(([key, value]) => {
+      form.setValue(key as keyof BusinessCanvas, value);
+    });
+    setShowTemplates(false);
+  };
+
+  const handleAICanvasGenerated = (canvas: Partial<BusinessCanvas>) => {
+    Object.entries(canvas).forEach(([key, value]) => {
+      form.setValue(key as keyof BusinessCanvas, value);
+    });
+    setShowAIGenerator(false);
+  };
+
   const currentTabIndex = tabs.findIndex(tab => tab.id === activeTab);
   const progress = ((currentTabIndex + 1) / tabs.length) * 100;
 
@@ -89,10 +164,37 @@ export const BusinessCanvasForm = () => {
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold mb-4">Modelo de Negocio Canvas</h1>
-          <p className="text-xl text-muted-foreground mb-6">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <h1 className="text-4xl font-bold">Modelo de Negocio Canvas</h1>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTemplates(true)}
+                disabled={loadingPersonas}
+              >
+                <Library className="w-4 h-4 mr-2" />
+                Templates
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAIGenerator(true)}
+                disabled={loadingPersonas}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Generar con IA
+              </Button>
+            </div>
+          </div>
+          <p className="text-xl text-muted-foreground mb-2">
             Define tu modelo de negocio paso a paso con nuestra metodología estructurada
           </p>
+          {buyerPersonas.length > 0 && (
+            <Badge variant="secondary" className="mt-2">
+              {buyerPersonas.length} Buyer Persona(s) detectado(s) para generación IA
+            </Badge>
+          )}
           <div className="max-w-md mx-auto">
             <Progress value={progress} className="h-2" />
             <p className="text-sm text-muted-foreground mt-2">
@@ -189,6 +291,26 @@ export const BusinessCanvasForm = () => {
             </Card>
           </Tabs>
         </Form>
+
+        <Dialog open={showTemplates} onOpenChange={setShowTemplates}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <CanvasTemplateLibrary 
+              onSelectTemplate={handleTemplateSelected}
+              onClose={() => setShowTemplates(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showAIGenerator} onOpenChange={setShowAIGenerator}>
+          <DialogContent className="max-w-3xl">
+            <AICanvasGenerator
+              buyerPersonas={buyerPersonas}
+              companyInfo={companyInfo}
+              onCanvasGenerated={handleAICanvasGenerated}
+              onClose={() => setShowAIGenerator(false)}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

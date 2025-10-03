@@ -88,6 +88,39 @@ export type Database = {
           },
         ]
       }
+      canvas_templates: {
+        Row: {
+          business_type: string[]
+          created_at: string
+          description: string
+          id: string
+          name: string
+          template: Json
+          thumbnail: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_type: string[]
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          template: Json
+          thumbnail?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_type?: string[]
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          template?: Json
+          thumbnail?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       content_performance: {
         Row: {
           calendar_id: string | null

@@ -44,6 +44,9 @@ verify_jwt = false
 [functions.persona-assistant]
 verify_jwt = false
 
+[functions.canvas-generator]
+verify_jwt = false
+
 [edge_runtime]
 policy = "per_worker"
 inspector_port = 8083
