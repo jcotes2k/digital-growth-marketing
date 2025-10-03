@@ -88,6 +88,39 @@ export type Database = {
           },
         ]
       }
+      canvas_scenarios: {
+        Row: {
+          canvas_data: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_favorite: boolean | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          canvas_data: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          canvas_data?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       canvas_templates: {
         Row: {
           business_type: string[]

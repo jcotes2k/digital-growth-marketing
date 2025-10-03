@@ -27,6 +27,9 @@ import { EquipoForm } from './canvas-forms/EquipoForm';
 import { ImpactoForm } from './canvas-forms/ImpactoForm';
 import { BusinessCanvasPreview } from './BusinessCanvasPreview';
 import { BusinessCanvas } from '@/types/business-canvas';
+import { CanvasViabilityAnalysis } from './CanvasViabilityAnalysis';
+import { CanvasScenariosManager } from './CanvasScenariosManager';
+import { CanvasComparison } from './CanvasComparison';
 
 const tabs = [
   { id: 'problema', title: 'Problema', description: 'Identifica los principales problemas y soluciones alternativas' },
@@ -40,6 +43,8 @@ const tabs = [
   { id: 'sostenibilidad-financiera', title: 'Sostenibilidad Financiera', description: 'Generación de ingresos y márgenes' },
   { id: 'equipo', title: 'Equipo', description: 'Miembros del equipo y roles clave' },
   { id: 'impacto', title: 'Impacto', description: 'Impacto social y medioambiental' },
+  { id: 'validation', title: 'Validación', description: 'Análisis de viabilidad con IA' },
+  { id: 'scenarios', title: 'Escenarios', description: 'Gestiona y compara versiones' },
   { id: 'preview', title: 'Vista Previa', description: 'Revisa tu modelo de negocio' },
 ];
 
@@ -51,6 +56,8 @@ export const BusinessCanvasForm = () => {
   const [buyerPersonas, setBuyerPersonas] = useReactState<BuyerPersona[]>([]);
   const [companyInfo, setCompanyInfo] = useReactState<CompanyInfo | null>(null);
   const [loadingPersonas, setLoadingPersonas] = useReactState(false);
+  const [showComparison, setShowComparison] = useReactState(false);
+  const [scenariosToCompare, setScenariosToCompare] = useReactState<any[]>([]);
   const form = useForm<BusinessCanvas>({
     defaultValues: {
       mainProblems: '',
@@ -142,6 +149,28 @@ export const BusinessCanvasForm = () => {
     });
     setShowAIGenerator(false);
   };
+
+  const handleCompareScenarios = (scenarios: any[]) => {
+    setScenariosToCompare(scenarios);
+    setShowComparison(true);
+  };
+
+  if (showComparison) {
+    return (
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <Button
+            variant="outline"
+            onClick={() => setShowComparison(false)}
+            className="mb-4"
+          >
+            ← Volver al Canvas
+          </Button>
+          <CanvasComparison scenarios={scenariosToCompare} />
+        </div>
+      </div>
+    );
+  }
 
   const currentTabIndex = tabs.findIndex(tab => tab.id === activeTab);
   const progress = ((currentTabIndex + 1) / tabs.length) * 100;
@@ -265,6 +294,22 @@ export const BusinessCanvasForm = () => {
                 
                 <TabsContent value="impacto" className="mt-0">
                   <ImpactoForm control={form.control} />
+                </TabsContent>
+                
+                <TabsContent value="validation" className="mt-0">
+                  <CanvasViabilityAnalysis canvas={formData as BusinessCanvas} />
+                </TabsContent>
+
+                <TabsContent value="scenarios" className="mt-0">
+                  <CanvasScenariosManager
+                    currentCanvas={formData}
+                    onLoadScenario={(canvas) => {
+                      Object.entries(canvas).forEach(([key, value]) => {
+                        form.setValue(key as keyof BusinessCanvas, value);
+                      });
+                    }}
+                    onCompareScenarios={handleCompareScenarios}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="preview" className="mt-0">
