@@ -20,7 +20,10 @@ import { BuyerPersona } from '@/types/buyer-persona';
 import { BuyerPersonaCollection } from '@/types/buyer-persona-collection';
 import { CompanyInfo } from '@/types/company-info';
 import { CompanyInfoForm } from './CompanyInfoForm';
-import { ChevronLeft, ChevronRight, Users, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Users, Eye, Sparkles, Library } from 'lucide-react';
+import { ArchetypeLibrary } from './ArchetypeLibrary';
+import { AIPersonaAssistant } from './AIPersonaAssistant';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const tabs = [
   { id: 'demographics', title: 'Demografía', description: 'Información básica del persona' },
@@ -38,6 +41,8 @@ export const BuyerPersonaForm = () => {
   const [step, setStep] = useState<'company-info' | 'select-count' | 'create-personas' | 'preview-all'>('company-info');
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [activeTab, setActiveTab] = useState('demographics');
+  const [showArchetypes, setShowArchetypes] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [collection, setCollection] = useState<BuyerPersonaCollection>({
     totalPersonas: 0,
     currentPersonaIndex: 0,
@@ -260,8 +265,107 @@ export const BuyerPersonaForm = () => {
     return <CompanyInfoForm onNext={handleCompanyInfoSubmit} />;
   }
 
+  const handleArchetypeSelected = (archetype: Partial<BuyerPersona>) => {
+    // Crear una persona con el arquetipo seleccionado
+    const personaWithArchetype = {
+      ...form.getValues(),
+      ...archetype
+    };
+    
+    // Inicializar colección con 1 persona basada en arquetipo
+    setCollection({
+      totalPersonas: 1,
+      currentPersonaIndex: 0,
+      personas: [personaWithArchetype as BuyerPersona],
+      completed: [false]
+    });
+    
+    form.reset(personaWithArchetype);
+    setStep('create-personas');
+    setShowArchetypes(false);
+  };
+
+  const handleAIPersonaGenerated = (persona: Partial<BuyerPersona>) => {
+    // Crear una persona con los datos generados por IA
+    const personaFromAI = {
+      ...form.getValues(),
+      ...persona
+    };
+    
+    // Inicializar colección con 1 persona generada por IA
+    setCollection({
+      totalPersonas: 1,
+      currentPersonaIndex: 0,
+      personas: [personaFromAI as BuyerPersona],
+      completed: [false]
+    });
+    
+    form.reset(personaFromAI);
+    setStep('create-personas');
+    setShowAIAssistant(false);
+  };
+
   if (step === 'select-count') {
-    return <PersonaCountSelector onCountSelected={handleCountSelected} />;
+    return (
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <PersonaCountSelector onCountSelected={handleCountSelected} />
+          
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-primary/50" onClick={() => setShowArchetypes(true)}>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Library className="w-6 h-6 text-primary" />
+                  <CardTitle>Biblioteca de Arquetipos</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Elige entre 14 arquetipos predefinidos por industria y personalízalos a tu medida.
+                </p>
+                <Badge variant="secondary">Rápido y eficiente</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-primary/50" onClick={() => setShowAIAssistant(true)}>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-6 h-6 text-primary" />
+                  <CardTitle>Asistente IA Interactivo</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  El asistente IA te hará preguntas y generará automáticamente tu buyer persona.
+                </p>
+                <Badge variant="secondary">Personalizado y guiado</Badge>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <Dialog open={showArchetypes} onOpenChange={setShowArchetypes}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <ArchetypeLibrary 
+              onSelectArchetype={handleArchetypeSelected}
+              onClose={() => setShowArchetypes(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showAIAssistant} onOpenChange={setShowAIAssistant}>
+          <DialogContent className="max-w-3xl">
+            {companyInfo && (
+              <AIPersonaAssistant
+                companyInfo={companyInfo}
+                onPersonaGenerated={handleAIPersonaGenerated}
+                onClose={() => setShowAIAssistant(false)}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
   }
 
   if (step === 'preview-all') {
