@@ -7,10 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles } from 'lucide-react';
+import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles, Award, TrendingUp, Eye, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ContentVariant } from '@/types/content-variant';
+import { analyzeContentQuality, getScoreColor, getScoreBadgeVariant, getScoreLabel, ContentScore } from '@/utils/content-scorer';
+import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ContentGeneratorFormData {
   contentType: string;
@@ -25,6 +28,7 @@ export const ContentGeneratorForm = () => {
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [adaptedContent, setAdaptedContent] = useState<Record<string, ContentVariant>>({});
   const [adaptingTo, setAdaptingTo] = useState<string | null>(null);
+  const [contentScores, setContentScores] = useState<Record<string, ContentScore>>({});
   const { toast } = useToast();
 
   const form = useForm<ContentGeneratorFormData>({
@@ -87,9 +91,17 @@ export const ContentGeneratorForm = () => {
 
       setVariants(functionData.variants);
       setSelectedVariantId(functionData.variants[0]?.id || null);
+      
+      // Analyze content quality for each variant
+      const scores: Record<string, ContentScore> = {};
+      functionData.variants.forEach((variant: ContentVariant) => {
+        scores[variant.id] = analyzeContentQuality(variant.content, variant.hashtags);
+      });
+      setContentScores(scores);
+      
       toast({
         title: "Variantes generadas exitosamente",
-        description: `Se generaron ${functionData.variants.length} variantes de contenido`,
+        description: `Se generaron ${functionData.variants.length} variantes de contenido con análisis de calidad`,
       });
     } catch (error) {
       console.error('Error generating content:', error);
@@ -348,43 +360,106 @@ export const ContentGeneratorForm = () => {
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                {variants.map((variant) => (
-                  <Card 
-                    key={variant.id} 
-                    className={`cursor-pointer transition-all hover:shadow-lg ${
-                      selectedVariantId === variant.id ? 'ring-2 ring-primary' : ''
-                    }`}
-                    onClick={() => setSelectedVariantId(variant.id)}
-                  >
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            {variant.style}
-                            {variant.isFavorite && (
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            )}
-                          </CardTitle>
-                          <CardDescription className="mt-1">
-                            {variant.bestFor}
-                          </CardDescription>
+                {variants.map((variant) => {
+                  const score = contentScores[variant.id];
+                  return (
+                    <Card 
+                      key={variant.id} 
+                      className={`cursor-pointer transition-all hover:shadow-lg ${
+                        selectedVariantId === variant.id ? 'ring-2 ring-primary' : ''
+                      }`}
+                      onClick={() => setSelectedVariantId(variant.id)}
+                    >
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-lg flex items-center gap-2">
+                              {variant.style}
+                              {variant.isFavorite && (
+                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              )}
+                              {score && (
+                                <Badge variant={getScoreBadgeVariant(score.overall)} className="ml-auto">
+                                  <Award className="h-3 w-3 mr-1" />
+                                  {score.overall}
+                                </Badge>
+                              )}
+                            </CardTitle>
+                            <CardDescription className="mt-1">
+                              {variant.bestFor}
+                            </CardDescription>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(variant.id);
+                            }}
+                          >
+                            <Star 
+                              className={`h-4 w-4 ${
+                                variant.isFavorite ? 'fill-yellow-400 text-yellow-400' : ''
+                              }`} 
+                            />
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(variant.id);
-                          }}
-                        >
-                          <Star 
-                            className={`h-4 w-4 ${
-                              variant.isFavorite ? 'fill-yellow-400 text-yellow-400' : ''
-                            }`} 
-                          />
-                        </Button>
-                      </div>
-                    </CardHeader>
+                        
+                        {score && (
+                          <div className="grid grid-cols-3 gap-2 mt-3">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="text-center p-2 bg-muted rounded">
+                                    <TrendingUp className="h-4 w-4 mx-auto mb-1 text-blue-600" />
+                                    <div className={`text-xs font-semibold ${getScoreColor(score.seo)}`}>
+                                      {score.seo}
+                                    </div>
+                                    <div className="text-[10px] text-muted-foreground">SEO</div>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs">Optimización para motores de búsqueda</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="text-center p-2 bg-muted rounded">
+                                    <Eye className="h-4 w-4 mx-auto mb-1 text-green-600" />
+                                    <div className={`text-xs font-semibold ${getScoreColor(score.readability)}`}>
+                                      {score.readability}
+                                    </div>
+                                    <div className="text-[10px] text-muted-foreground">Legibilidad</div>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs">Facilidad de lectura y comprensión</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="text-center p-2 bg-muted rounded">
+                                    <Zap className="h-4 w-4 mx-auto mb-1 text-purple-600" />
+                                    <div className={`text-xs font-semibold ${getScoreColor(score.engagement)}`}>
+                                      {score.engagement}
+                                    </div>
+                                    <div className="text-[10px] text-muted-foreground">Engagement</div>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs">Potencial de interacción y engagement</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        )}
+                      </CardHeader>
                     <CardContent className="space-y-4">
                       <Textarea
                         value={variant.content}
@@ -444,19 +519,97 @@ export const ContentGeneratorForm = () => {
                         </Button>
                       </div>
                     </CardContent>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
 
               {selectedVariant && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Vista Detallada - {selectedVariant.style}</CardTitle>
-                    <CardDescription>
-                      {selectedVariant.bestFor}
-                    </CardDescription>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle>Vista Detallada - {selectedVariant.style}</CardTitle>
+                        <CardDescription>
+                          {selectedVariant.bestFor}
+                        </CardDescription>
+                      </div>
+                      {contentScores[selectedVariant.id] && (
+                        <Badge variant={getScoreBadgeVariant(contentScores[selectedVariant.id].overall)} className="text-lg px-4 py-2">
+                          <Award className="h-5 w-5 mr-2" />
+                          {contentScores[selectedVariant.id].overall} / 100
+                        </Badge>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    {contentScores[selectedVariant.id] && (
+                      <Card className="bg-muted/50">
+                        <CardHeader>
+                          <CardTitle className="text-sm flex items-center gap-2">
+                            <Award className="h-4 w-4" />
+                            Análisis de Calidad - {getScoreLabel(contentScores[selectedVariant.id].overall)}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="space-y-3">
+                            <div>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span className="flex items-center gap-1">
+                                  <TrendingUp className="h-3 w-3" />
+                                  SEO
+                                </span>
+                                <span className={`font-semibold ${getScoreColor(contentScores[selectedVariant.id].seo)}`}>
+                                  {contentScores[selectedVariant.id].seo}/100
+                                </span>
+                              </div>
+                              <Progress value={contentScores[selectedVariant.id].seo} className="h-2" />
+                            </div>
+                            
+                            <div>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span className="flex items-center gap-1">
+                                  <Eye className="h-3 w-3" />
+                                  Legibilidad
+                                </span>
+                                <span className={`font-semibold ${getScoreColor(contentScores[selectedVariant.id].readability)}`}>
+                                  {contentScores[selectedVariant.id].readability}/100
+                                </span>
+                              </div>
+                              <Progress value={contentScores[selectedVariant.id].readability} className="h-2" />
+                            </div>
+                            
+                            <div>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span className="flex items-center gap-1">
+                                  <Zap className="h-3 w-3" />
+                                  Engagement
+                                </span>
+                                <span className={`font-semibold ${getScoreColor(contentScores[selectedVariant.id].engagement)}`}>
+                                  {contentScores[selectedVariant.id].engagement}/100
+                                </span>
+                              </div>
+                              <Progress value={contentScores[selectedVariant.id].engagement} className="h-2" />
+                            </div>
+                          </div>
+                          
+                          {contentScores[selectedVariant.id].suggestions.length > 0 && (
+                            <div className="mt-4 pt-4 border-t">
+                              <p className="text-sm font-medium mb-2">💡 Sugerencias de Mejora:</p>
+                              <ul className="space-y-1">
+                                {contentScores[selectedVariant.id].suggestions.map((suggestion, idx) => (
+                                  <li key={idx} className="text-xs text-muted-foreground flex items-start gap-2">
+                                    <span className="text-primary">•</span>
+                                    <span>{suggestion}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+                    
                     <Textarea
                       value={selectedVariant.content}
                       readOnly
