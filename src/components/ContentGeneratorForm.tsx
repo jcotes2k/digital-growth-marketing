@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles, Award, TrendingUp, Eye, Zap, History, CalendarPlus, BarChart3 } from 'lucide-react';
+import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles, Award, TrendingUp, Eye, Zap, History, CalendarPlus, BarChart3, LineChart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ContentVariant } from '@/types/content-variant';
@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ContentHistory } from './ContentHistory';
 import { ABTestingDashboard } from './ABTestingDashboard';
+import { TrendsAnalysis } from './TrendsAnalysis';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -46,6 +47,8 @@ export const ContentGeneratorForm = () => {
   const [scheduleTime, setScheduleTime] = useState('12:00');
   const [schedulePlatform, setSchedulePlatform] = useState('');
   const [isScheduling, setIsScheduling] = useState(false);
+  const [metricsForTrends, setMetricsForTrends] = useState<any[]>([]);
+  const [comparisonsForTrends, setComparisonsForTrends] = useState<any[]>([]);
   const { toast } = useToast();
 
   const form = useForm<ContentGeneratorFormData>({
@@ -260,6 +263,52 @@ export const ContentGeneratorForm = () => {
     });
   };
 
+  const fetchMetricsForTrends = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: metricsData, error: metricsError } = await supabase
+        .from('content_performance')
+        .select(`
+          *,
+          content:generated_content(content, style, platform)
+        `)
+        .order('measured_at', { ascending: false });
+
+      if (metricsError) throw metricsError;
+
+      // Calculate comparisons
+      const styleGroups: Record<string, any[]> = {};
+      (metricsData || []).forEach(metric => {
+        const style = metric.content?.style || 'Unknown';
+        if (!styleGroups[style]) {
+          styleGroups[style] = [];
+        }
+        styleGroups[style].push(metric);
+      });
+
+      const comparisonData = Object.entries(styleGroups).map(([style, metrics]) => {
+        const totalViews = metrics.reduce((sum, m) => sum + (m.views || 0), 0);
+        const totalLikes = metrics.reduce((sum, m) => sum + (m.likes || 0), 0);
+        const totalEngagement = metrics.reduce((sum, m) => sum + (m.engagement_rate || 0), 0);
+
+        return {
+          style,
+          avgViews: Math.round(totalViews / metrics.length),
+          avgLikes: Math.round(totalLikes / metrics.length),
+          avgEngagement: parseFloat((totalEngagement / metrics.length).toFixed(2)),
+          totalPosts: metrics.length,
+        };
+      });
+
+      setMetricsForTrends(metricsData || []);
+      setComparisonsForTrends(comparisonData);
+    } catch (error) {
+      console.error('Error fetching metrics for trends:', error);
+    }
+  };
+
   const openScheduleDialog = (variant: ContentVariant) => {
     setVariantToSchedule(variant);
     setSchedulePlatform(variant.bestFor || '');
@@ -339,7 +388,7 @@ export const ContentGeneratorForm = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-3 mb-8">
+        <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-4 mb-8">
           <TabsTrigger value="generator">
             <Sparkles className="h-4 w-4 mr-2" />
             Generador
@@ -351,6 +400,17 @@ export const ContentGeneratorForm = () => {
           <TabsTrigger value="abtesting">
             <BarChart3 className="h-4 w-4 mr-2" />
             A/B Testing
+          </TabsTrigger>
+          <TabsTrigger 
+            value="trends"
+            onClick={() => {
+              if (metricsForTrends.length === 0) {
+                fetchMetricsForTrends();
+              }
+            }}
+          >
+            <LineChart className="h-4 w-4 mr-2" />
+            Tendencias IA
           </TabsTrigger>
         </TabsList>
 
@@ -1036,6 +1096,13 @@ export const ContentGeneratorForm = () => {
 
       <TabsContent value="abtesting">
         <ABTestingDashboard />
+      </TabsContent>
+
+      <TabsContent value="trends">
+        <TrendsAnalysis 
+          metrics={metricsForTrends} 
+          comparisons={comparisonsForTrends}
+        />
       </TabsContent>
     </div>
   );

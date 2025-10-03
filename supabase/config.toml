@@ -38,6 +38,9 @@ verify_jwt = false
 [functions.sentiment-analyzer]
 verify_jwt = false
 
+[functions.trends-analyzer]
+verify_jwt = false
+
 [edge_runtime]
 policy = "per_worker"
 inspector_port = 8083
