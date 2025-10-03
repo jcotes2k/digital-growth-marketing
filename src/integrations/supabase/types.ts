@@ -58,6 +58,81 @@ export type Database = {
           },
         ]
       }
+      content_performance: {
+        Row: {
+          calendar_id: string | null
+          clicks: number | null
+          comments: number | null
+          content_id: string | null
+          conversion_rate: number | null
+          created_at: string
+          engagement_rate: number | null
+          id: string
+          likes: number | null
+          measured_at: string
+          notes: string | null
+          platform: string
+          reach: number | null
+          shares: number | null
+          updated_at: string
+          user_id: string
+          views: number | null
+        }
+        Insert: {
+          calendar_id?: string | null
+          clicks?: number | null
+          comments?: number | null
+          content_id?: string | null
+          conversion_rate?: number | null
+          created_at?: string
+          engagement_rate?: number | null
+          id?: string
+          likes?: number | null
+          measured_at?: string
+          notes?: string | null
+          platform: string
+          reach?: number | null
+          shares?: number | null
+          updated_at?: string
+          user_id: string
+          views?: number | null
+        }
+        Update: {
+          calendar_id?: string | null
+          clicks?: number | null
+          comments?: number | null
+          content_id?: string | null
+          conversion_rate?: number | null
+          created_at?: string
+          engagement_rate?: number | null
+          id?: string
+          likes?: number | null
+          measured_at?: string
+          notes?: string | null
+          platform?: string
+          reach?: number | null
+          shares?: number | null
+          updated_at?: string
+          user_id?: string
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_performance_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "editorial_calendar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_performance_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "generated_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       editorial_calendar: {
         Row: {
           content: string

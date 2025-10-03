@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles, Award, TrendingUp, Eye, Zap, History, CalendarPlus } from 'lucide-react';
+import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles, Award, TrendingUp, Eye, Zap, History, CalendarPlus, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ContentVariant } from '@/types/content-variant';
@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ContentHistory } from './ContentHistory';
+import { ABTestingDashboard } from './ABTestingDashboard';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -338,14 +339,18 @@ export const ContentGeneratorForm = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+        <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-3 mb-8">
           <TabsTrigger value="generator">
             <Sparkles className="h-4 w-4 mr-2" />
             Generador
           </TabsTrigger>
           <TabsTrigger value="history">
             <History className="h-4 w-4 mr-2" />
-            Historial ({historyRefreshTrigger})
+            Historial
+          </TabsTrigger>
+          <TabsTrigger value="abtesting">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            A/B Testing
           </TabsTrigger>
         </TabsList>
 
@@ -1028,6 +1033,10 @@ export const ContentGeneratorForm = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <TabsContent value="abtesting">
+        <ABTestingDashboard />
+      </TabsContent>
     </div>
   );
 };
