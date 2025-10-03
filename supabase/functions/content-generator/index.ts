@@ -22,12 +22,15 @@ serve(async (req) => {
     // Crear prompt basado en el tipo de contenido y datos del usuario
     const systemPrompt = `Eres un experto en marketing digital y creación de contenido. 
 Usa la información estratégica proporcionada para crear contenido altamente personalizado y efectivo.
-Responde siempre en español y mantén un tono profesional pero creativo.`;
+Responde siempre en español y mantén un tono profesional pero creativo.
 
-    let userPrompt = `Genera ${contentType} sobre: ${topic}`;
+Debes generar 3-5 variantes del contenido solicitado, cada una con un estilo diferente pero manteniendo el objetivo.
+Cada variante debe tener un estilo único: uno más formal, otro más casual, otro más persuasivo, etc.`;
+
+    let userPrompt = `Genera 3-5 variantes de ${contentType} sobre: ${topic}`;
     
     if (tone) {
-      userPrompt += `\nTono: ${tone}`;
+      userPrompt += `\nTono base: ${tone} (pero varía el estilo en cada variante)`;
     }
     
     if (audience) {
@@ -38,10 +41,12 @@ Responde siempre en español y mantén un tono profesional pero creativo.`;
       userPrompt += `\nEstrategia de contenido: ${JSON.stringify(strategy, null, 2)}`;
     }
 
-    userPrompt += `\n\nPor favor genera contenido específico, actionable y que conecte con la audiencia. 
-    Si es para redes sociales, incluye hashtags relevantes. 
-    Si es un email, incluye asunto atractivo.
-    Si es un blog post, estructura con encabezados y párrafos bien organizados.`;
+    userPrompt += `\n\nGenera entre 3 y 5 variantes diferentes del contenido:
+    - Cada variante debe tener un estilo único (ej: profesional, cercano, urgente, educativo, inspirador)
+    - Si es para redes sociales, incluye hashtags relevantes en cada variante
+    - Si es un email, incluye asunto atractivo diferente para cada variante
+    - Si es un blog post, estructura con encabezados y párrafos bien organizados
+    - Indica para qué plataforma o uso es mejor cada variante`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -55,6 +60,52 @@ Responde siempre en español y mantén un tono profesional pero creativo.`;
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "generate_content_variants",
+              description: "Genera múltiples variantes de contenido con diferentes estilos",
+              parameters: {
+                type: "object",
+                properties: {
+                  variants: {
+                    type: "array",
+                    minItems: 3,
+                    maxItems: 5,
+                    items: {
+                      type: "object",
+                      properties: {
+                        content: {
+                          type: "string",
+                          description: "El contenido completo de esta variante"
+                        },
+                        style: {
+                          type: "string",
+                          description: "Estilo usado (ej: profesional, casual, persuasivo, educativo, urgente)"
+                        },
+                        hashtags: {
+                          type: "array",
+                          items: { type: "string" },
+                          description: "Hashtags sugeridos para esta variante"
+                        },
+                        bestFor: {
+                          type: "string",
+                          description: "Para qué plataforma o uso es mejor esta variante"
+                        }
+                      },
+                      required: ["content", "style", "hashtags", "bestFor"],
+                      additionalProperties: false
+                    }
+                  }
+                },
+                required: ["variants"],
+                additionalProperties: false
+              }
+            }
+          }
+        ],
+        tool_choice: { type: "function", function: { name: "generate_content_variants" } }
       }),
     });
 
@@ -80,9 +131,27 @@ Responde siempre en español y mantén un tono profesional pero creativo.`;
     }
 
     const data = await response.json();
-    const generatedContent = data.choices[0].message.content;
+    
+    // Extract tool call response
+    const toolCall = data.choices[0].message.tool_calls?.[0];
+    if (!toolCall) {
+      throw new Error("No tool call in response");
+    }
+    
+    const variantsData = JSON.parse(toolCall.function.arguments);
+    
+    // Add IDs and character counts to variants
+    const variants = variantsData.variants.map((variant: any, index: number) => ({
+      id: `variant-${index + 1}`,
+      content: variant.content,
+      style: variant.style,
+      characterCount: variant.content.length,
+      hashtags: variant.hashtags || [],
+      bestFor: variant.bestFor,
+      isFavorite: false
+    }));
 
-    return new Response(JSON.stringify({ content: generatedContent }), {
+    return new Response(JSON.stringify({ variants }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
