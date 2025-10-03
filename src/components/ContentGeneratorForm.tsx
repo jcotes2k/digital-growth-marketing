@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash } from 'lucide-react';
+import { Loader2, Copy, Download, Calendar as CalendarIcon, Star, RefreshCw, Hash, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ContentVariant } from '@/types/content-variant';
@@ -23,6 +23,8 @@ export const ContentGeneratorForm = () => {
   const [variants, setVariants] = useState<ContentVariant[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [adaptedContent, setAdaptedContent] = useState<Record<string, ContentVariant>>({});
+  const [adaptingTo, setAdaptingTo] = useState<string | null>(null);
   const { toast } = useToast();
 
   const form = useForm<ContentGeneratorFormData>({
@@ -139,6 +141,51 @@ export const ContentGeneratorForm = () => {
       description: "El contenido se ha guardado como archivo de texto",
     });
   };
+
+  const adaptToPlatform = async (variant: ContentVariant, platform: string) => {
+    setAdaptingTo(platform);
+    try {
+      const { data, error } = await supabase.functions.invoke('content-generator', {
+        body: {
+          adaptTo: platform,
+          existingContent: variant.content,
+        }
+      });
+
+      if (error) throw error;
+
+      const adaptedVariant = data.variants[0];
+      setAdaptedContent(prev => ({
+        ...prev,
+        [platform]: {
+          ...adaptedVariant,
+          id: `adapted-${platform}`,
+        }
+      }));
+
+      toast({
+        title: "Contenido adaptado",
+        description: `Contenido optimizado para ${platform}`,
+      });
+    } catch (error: any) {
+      console.error('Error adapting content:', error);
+      toast({
+        title: "Error al adaptar",
+        description: error.message || 'No se pudo adaptar el contenido',
+        variant: "destructive",
+      });
+    } finally {
+      setAdaptingTo(null);
+    }
+  };
+
+  const platforms = [
+    { id: 'instagram', name: 'Instagram', chars: '2200', color: 'bg-pink-500' },
+    { id: 'linkedin', name: 'LinkedIn', chars: '3000', color: 'bg-blue-600' },
+    { id: 'twitter', name: 'Twitter/X', chars: '280', color: 'bg-black' },
+    { id: 'facebook', name: 'Facebook', chars: '500', color: 'bg-blue-500' },
+    { id: 'tiktok', name: 'TikTok', chars: '2200', color: 'bg-slate-900' },
+  ];
 
   const selectedVariant = variants.find(v => v.id === selectedVariantId);
 
@@ -429,6 +476,34 @@ export const ContentGeneratorForm = () => {
                       </div>
                     )}
 
+                    <div className="border-t pt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-sm flex items-center gap-2">
+                          <Sparkles className="h-4 w-4" />
+                          Adaptar para Plataforma
+                        </h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
+                        {platforms.map((platform) => (
+                          <Button
+                            key={platform.id}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => adaptToPlatform(selectedVariant, platform.id)}
+                            disabled={adaptingTo === platform.id}
+                            className="w-full"
+                          >
+                            {adaptingTo === platform.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              platform.name
+                            )}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
                     <div className="flex gap-2">
                       <Button
                         onClick={() => copyVariantToClipboard(selectedVariant)}
@@ -464,6 +539,71 @@ export const ContentGeneratorForm = () => {
                         Programar
                       </Button>
                     </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {Object.keys(adaptedContent).length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Contenido Adaptado por Plataforma</CardTitle>
+                    <CardDescription>
+                      Versiones optimizadas para cada red social
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {Object.entries(adaptedContent).map(([platform, variant]) => {
+                      const platformInfo = platforms.find(p => p.id === platform);
+                      return (
+                        <Card key={platform} className="border-2">
+                          <CardHeader>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Badge className={platformInfo?.color}>
+                                  {platformInfo?.name}
+                                </Badge>
+                                <span className="text-sm text-muted-foreground">
+                                  {variant.characterCount} / {platformInfo?.chars} caracteres
+                                </span>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => copyVariantToClipboard(variant)}
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => downloadVariantAsText(variant)}
+                                >
+                                  <Download className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            <Textarea
+                              value={variant.content}
+                              readOnly
+                              className="min-h-[120px] resize-none text-sm"
+                            />
+
+                            {variant.hashtags && variant.hashtags.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {variant.hashtags.map((tag, idx) => (
+                                  <Badge key={idx} variant="secondary" className="text-xs">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </CardContent>
                 </Card>
               )}
