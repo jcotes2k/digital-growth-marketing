@@ -3,11 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { Image, Download, Copy, Trash2, Sparkles, Camera, Palette, Lightbulb } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Image, Download, Copy, Trash2, Sparkles, Camera, Palette, Lightbulb, Pencil } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AIImage, ImageStyle } from '@/types/ai-image';
@@ -17,6 +16,9 @@ export const AIImageBankForm = () => {
   const [style, setStyle] = useState<ImageStyle>('fotografia');
   const [isGenerating, setIsGenerating] = useState(false);
   const [images, setImages] = useState<AIImage[]>([]);
+  const [editingImage, setEditingImage] = useState<AIImage | null>(null);
+  const [editPrompt, setEditPrompt] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
 
   const styleOptions = [
@@ -77,6 +79,56 @@ export const AIImageBankForm = () => {
     }
   };
 
+  const editImage = async () => {
+    if (!editingImage || !editPrompt.trim()) {
+      toast({
+        title: "Instrucción requerida",
+        description: "Por favor describe cómo quieres editar la imagen",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsEditing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('image-editor', {
+        body: {
+          imageUrl: editingImage.imageUrl,
+          editPrompt: editPrompt.trim()
+        }
+      });
+
+      if (error) throw error;
+
+      const editedImage: AIImage = {
+        id: crypto.randomUUID(),
+        prompt: `[Editado] ${editPrompt}`,
+        imageUrl: data.imageUrl,
+        style: editingImage.style,
+        createdAt: new Date()
+      };
+
+      setImages(prev => [editedImage, ...prev]);
+      
+      toast({
+        title: "Imagen editada",
+        description: "Tu imagen ha sido modificada exitosamente"
+      });
+
+      setEditingImage(null);
+      setEditPrompt('');
+    } catch (error) {
+      console.error('Error editing image:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo editar la imagen. Inténtalo de nuevo.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
   const downloadImage = async (image: AIImage) => {
     try {
       const response = await fetch(image.imageUrl);
@@ -134,6 +186,14 @@ export const AIImageBankForm = () => {
     "Equipo de trabajo diverso colaborando en una reunión",
     "Producto tecnológico sobre fondo blanco limpio",
     "Concepto abstracto de innovación y creatividad"
+  ];
+
+  const editExamples = [
+    "Hazlo más colorido y vibrante",
+    "Añade un efecto de atardecer",
+    "Cambia el fondo a un color sólido",
+    "Hazlo más minimalista",
+    "Añade elementos decorativos"
   ];
 
   return (
@@ -242,7 +302,19 @@ export const AIImageBankForm = () => {
                         <Button
                           variant="secondary"
                           size="icon"
+                          onClick={() => {
+                            setEditingImage(image);
+                            setEditPrompt('');
+                          }}
+                          title="Editar imagen"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="icon"
                           onClick={() => downloadImage(image)}
+                          title="Descargar"
                         >
                           <Download className="h-4 w-4" />
                         </Button>
@@ -250,6 +322,7 @@ export const AIImageBankForm = () => {
                           variant="secondary"
                           size="icon"
                           onClick={() => copyImageUrl(image.imageUrl)}
+                          title="Copiar URL"
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
@@ -257,6 +330,7 @@ export const AIImageBankForm = () => {
                           variant="destructive"
                           size="icon"
                           onClick={() => deleteImage(image.id)}
+                          title="Eliminar"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -292,6 +366,73 @@ export const AIImageBankForm = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Edit Image Dialog */}
+      <Dialog open={!!editingImage} onOpenChange={(open) => !open && setEditingImage(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5" />
+              Editar Imagen con IA
+            </DialogTitle>
+          </DialogHeader>
+          
+          {editingImage && (
+            <div className="space-y-4">
+              <div className="rounded-lg overflow-hidden border">
+                <img
+                  src={editingImage.imageUrl}
+                  alt={editingImage.prompt}
+                  className="w-full h-64 object-contain bg-muted"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="editPrompt">¿Cómo quieres modificar esta imagen?</Label>
+                <Textarea
+                  id="editPrompt"
+                  placeholder="Ej: Hazlo más colorido, añade un atardecer, cambia el fondo..."
+                  value={editPrompt}
+                  onChange={(e) => setEditPrompt(e.target.value)}
+                  className="min-h-[80px]"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-sm text-muted-foreground">Sugerencias:</span>
+                  {editExamples.map((example, i) => (
+                    <Badge 
+                      key={i} 
+                      variant="outline" 
+                      className="cursor-pointer hover:bg-secondary"
+                      onClick={() => setEditPrompt(example)}
+                    >
+                      {example}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingImage(null)} disabled={isEditing}>
+              Cancelar
+            </Button>
+            <Button onClick={editImage} disabled={isEditing || !editPrompt.trim()}>
+              {isEditing ? (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                  Editando...
+                </>
+              ) : (
+                <>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Aplicar Edición
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

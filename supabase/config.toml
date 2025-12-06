@@ -1,20 +1,16 @@
 project_id = "gwvfdnahoexxjgbghpfo"
 
-[auth]
+[api]
 enabled = true
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["https://localhost:3000"]
-jwt_expiry = 3600
-
-[auth.email]
-enable_signup = true
-enable_confirmations = false
-
-[auth.sms]
-enable_signup = false
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
 [db]
 port = 54322
+shadow_port = 54320
+major_version = 15
 
 [studio]
 enabled = true
@@ -27,6 +23,9 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.image-generator]
+verify_jwt = false
+
+[functions.image-editor]
 verify_jwt = false
 
 [functions.hashtag-generator]
