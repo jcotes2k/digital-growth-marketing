@@ -43,12 +43,16 @@ export const PHASE_CONFIG: PhaseConfig[] = [
   { id: 'aeo-analyzer', name: 'Analizador AEO', description: 'Optimización para IA', order: 30, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
   { id: 'content-atomizer-advanced', name: 'Atomización (15 formatos)', description: 'Convierte contenido en 15 formatos', order: 31, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
   { id: 'pre-viral-trends', name: 'Tendencias Pre-Virales', description: 'Detecta tendencias 24-48h antes', order: 32, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  
+  // AI Agents - GOLD plan
+  { id: 'ai-agency', name: 'Agencia de Marketing IA', description: 'Tu equipo de 16+ especialistas virtuales', order: 33, requires: ['intelligent-content-strategy'], requiredPlan: 'gold' },
 ];
 
 const PLAN_HIERARCHY: Record<SubscriptionPlan, number> = {
   'free': 1,
   'pro': 2,
   'premium': 3,
+  'gold': 4,
 };
 
 export const useUserProgress = () => {

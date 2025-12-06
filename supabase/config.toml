@@ -103,6 +103,9 @@ verify_jwt = false
 [functions.revenue-attribution]
 verify_jwt = false
 
+[functions.agent-chat]
+verify_jwt = false
+
 [edge_runtime]
 policy = "per_worker"
 inspector_port = 8083
