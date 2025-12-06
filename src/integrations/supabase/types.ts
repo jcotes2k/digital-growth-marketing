@@ -439,6 +439,77 @@ export type Database = {
         }
         Relationships: []
       }
+      product_roadmap_features: {
+        Row: {
+          ai_generated: boolean | null
+          ai_reasoning: string | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          engagement_impact: number | null
+          estimated_effort: string | null
+          estimated_timeline: string | null
+          id: string
+          linked_performance_id: string | null
+          priority: string
+          priority_score: number | null
+          start_date: string | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          ai_reasoning?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          engagement_impact?: number | null
+          estimated_effort?: string | null
+          estimated_timeline?: string | null
+          id?: string
+          linked_performance_id?: string | null
+          priority?: string
+          priority_score?: number | null
+          start_date?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_generated?: boolean | null
+          ai_reasoning?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          engagement_impact?: number | null
+          estimated_effort?: string | null
+          estimated_timeline?: string | null
+          id?: string
+          linked_performance_id?: string | null
+          priority?: string
+          priority_score?: number | null
+          start_date?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_roadmap_features_linked_performance_id_fkey"
+            columns: ["linked_performance_id"]
+            isOneToOne: false
+            referencedRelation: "content_performance"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           business_sector: string
