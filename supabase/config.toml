@@ -28,6 +28,9 @@ verify_jwt = false
 [functions.image-editor]
 verify_jwt = false
 
+[functions.infographic-generator]
+verify_jwt = false
+
 [functions.hashtag-generator]
 verify_jwt = false
 
