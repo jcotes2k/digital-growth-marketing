@@ -79,6 +79,30 @@ verify_jwt = false
 [functions.aeo-analyzer]
 verify_jwt = false
 
+[functions.content-atomizer]
+verify_jwt = false
+
+[functions.virality-predictor]
+verify_jwt = false
+
+[functions.voice-cloning]
+verify_jwt = false
+
+[functions.content-fatigue-detector]
+verify_jwt = false
+
+[functions.interactive-content-generator]
+verify_jwt = false
+
+[functions.evergreen-recycler]
+verify_jwt = false
+
+[functions.pre-viral-trends]
+verify_jwt = false
+
+[functions.revenue-attribution]
+verify_jwt = false
+
 [edge_runtime]
 policy = "per_worker"
 inspector_port = 8083
