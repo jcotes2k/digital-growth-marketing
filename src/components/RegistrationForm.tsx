@@ -49,7 +49,7 @@ const formSchema = z.object({
   whatsapp: z.string().min(10, "Número de WhatsApp inválido"),
   companyName: z.string().optional(),
   businessSector: z.string().min(1, "Selecciona un sector"),
-  plan: z.enum(["free", "pro", "premium"]),
+  plan: z.enum(["free", "pro", "premium", "gold"]),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -225,7 +225,7 @@ export function RegistrationForm() {
             <FormItem>
               <FormLabel>Plan de Suscripción</FormLabel>
               <FormControl>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <PlanCard
                     name="Gratuito"
                     price="$0"
@@ -265,6 +265,21 @@ export function RegistrationForm() {
                     isSelected={field.value === "premium"}
                     onClick={() => field.onChange("premium")}
                   />
+                  <PlanCard
+                    name="GOLD"
+                    price="$49"
+                    period="/mes"
+                    features={[
+                      "Todo lo de PREMIUM",
+                      "Agencia de Marketing IA",
+                      "+15 agentes especializados",
+                      "Workflows automatizados",
+                      "Consultor Business Strategy",
+                    ]}
+                    isSelected={field.value === "gold"}
+                    onClick={() => field.onChange("gold")}
+                    gold
+                  />
                 </div>
               </FormControl>
               <FormMessage />
@@ -295,17 +310,22 @@ interface PlanCardProps {
   isSelected: boolean;
   onClick: () => void;
   popular?: boolean;
+  gold?: boolean;
 }
 
-function PlanCard({ name, price, period, features, isSelected, onClick, popular }: PlanCardProps) {
+function PlanCard({ name, price, period, features, isSelected, onClick, popular, gold }: PlanCardProps) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={`relative p-6 rounded-lg border-2 transition-all text-left ${
         isSelected
-          ? "border-primary bg-primary/5"
-          : "border-border hover:border-primary/50"
+          ? gold
+            ? "border-amber-500 bg-amber-500/10"
+            : "border-primary bg-primary/5"
+          : gold
+            ? "border-amber-300/50 hover:border-amber-500"
+            : "border-border hover:border-primary/50"
       }`}
     >
       {popular && (
@@ -313,9 +333,14 @@ function PlanCard({ name, price, period, features, isSelected, onClick, popular 
           Popular
         </span>
       )}
+      {gold && (
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-yellow-400 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+          ⭐ GOLD
+        </span>
+      )}
       <div className="text-center mb-4">
-        <h3 className="text-xl font-bold mb-2">{name}</h3>
-        <div className="text-3xl font-bold">
+        <h3 className={`text-xl font-bold mb-2 ${gold ? "text-amber-600 dark:text-amber-400" : ""}`}>{name}</h3>
+        <div className={`text-3xl font-bold ${gold ? "text-amber-600 dark:text-amber-400" : ""}`}>
           {price}
           {period && <span className="text-sm text-muted-foreground">{period}</span>}
         </div>
@@ -323,7 +348,7 @@ function PlanCard({ name, price, period, features, isSelected, onClick, popular 
       <ul className="space-y-2">
         {features.map((feature, index) => (
           <li key={index} className="text-sm flex items-start">
-            <span className="mr-2">✓</span>
+            <span className={`mr-2 ${gold ? "text-amber-500" : ""}`}>✓</span>
             <span>{feature}</span>
           </li>
         ))}
