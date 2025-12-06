@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_conversations: {
+        Row: {
+          agent_type: string
+          context: Json | null
+          created_at: string
+          id: string
+          messages: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agent_type: string
+          context?: Json | null
+          created_at?: string
+          id?: string
+          messages?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agent_type?: string
+          context?: Json | null
+          created_at?: string
+          id?: string
+          messages?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      agent_workflows: {
+        Row: {
+          agents: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_template: boolean | null
+          name: string
+          steps: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agents?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_template?: boolean | null
+          name: string
+          steps?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agents?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_template?: boolean | null
+          name?: string
+          steps?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_conversations: {
         Row: {
           created_at: string
@@ -758,6 +824,44 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_executions: {
+        Row: {
+          completed_at: string | null
+          id: string
+          results: Json | null
+          started_at: string
+          status: string
+          user_id: string
+          workflow_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          results?: Json | null
+          started_at?: string
+          status?: string
+          user_id: string
+          workflow_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          results?: Json | null
+          started_at?: string
+          status?: string
+          user_id?: string
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_executions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "agent_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -774,7 +878,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
-      subscription_plan: "free" | "pro" | "premium"
+      subscription_plan: "free" | "pro" | "premium" | "gold"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -903,7 +1007,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
-      subscription_plan: ["free", "pro", "premium"],
+      subscription_plan: ["free", "pro", "premium", "gold"],
     },
   },
 } as const

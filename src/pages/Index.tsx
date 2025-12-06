@@ -31,16 +31,17 @@ import InteractiveContentGenerator from "@/components/InteractiveContentGenerato
 import EvergreenRecycler from "@/components/EvergreenRecycler";
 import PreViralTrendsMonitor from "@/components/PreViralTrendsMonitor";
 import RevenueAttribution from "@/components/RevenueAttribution";
+import AgencyDashboard from "@/components/agents/AgencyDashboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useUserProgress } from "@/hooks/use-user-progress";
-import { Lock, CheckCircle2, Award, Crown, Zap } from "lucide-react";
+import { Lock, CheckCircle2, Award, Crown, Zap, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { SubscriptionPlan } from "@/types/user-progress";
 
-type Phase = 'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system' | 'team-collaboration' | 'sentiment-analysis' | 'reports-roi' | 'video-script-generator' | 'podcast-generator' | 'article-generator' | 'seo-analyzer' | 'aeo-analyzer' | 'content-atomizer-basic' | 'content-atomizer-advanced' | 'virality-predictor' | 'voice-cloning' | 'content-fatigue' | 'interactive-content' | 'evergreen-recycler' | 'pre-viral-trends' | 'revenue-attribution';
+type Phase = 'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system' | 'team-collaboration' | 'sentiment-analysis' | 'reports-roi' | 'video-script-generator' | 'podcast-generator' | 'article-generator' | 'seo-analyzer' | 'aeo-analyzer' | 'content-atomizer-basic' | 'content-atomizer-advanced' | 'virality-predictor' | 'voice-cloning' | 'content-fatigue' | 'interactive-content' | 'evergreen-recycler' | 'pre-viral-trends' | 'revenue-attribution' | 'ai-agency';
 
 interface PhaseCardProps {
   phaseId: string;
@@ -60,6 +61,8 @@ const getPlanBadge = (plan: SubscriptionPlan) => {
       return <Badge className="bg-blue-500 text-white text-xs shrink-0"><Zap className="h-3 w-3 mr-1" />PRO</Badge>;
     case 'premium':
       return <Badge className="bg-purple-500 text-white text-xs shrink-0"><Crown className="h-3 w-3 mr-1" />PREMIUM</Badge>;
+    case 'gold':
+      return <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-xs shrink-0"><Star className="h-3 w-3 mr-1" />GOLD</Badge>;
     default:
       return null;
   }
@@ -70,6 +73,7 @@ const getPlanName = (plan: SubscriptionPlan) => {
     case 'free': return 'Gratis';
     case 'pro': return 'Pro';
     case 'premium': return 'Premium';
+    case 'gold': return 'Gold';
   }
 };
 
@@ -221,6 +225,8 @@ const Index = () => {
         return <PreViralTrendsMonitor />;
       case 'revenue-attribution':
         return <RevenueAttribution />;
+      case 'ai-agency':
+        return <AgencyDashboard isUnlocked={isPhaseUnlocked('ai-agency')} onBack={() => setCurrentPhase('menu')} />;
       default:
         const completionPercentage = getCompletionPercentage();
 
@@ -247,8 +253,10 @@ const Index = () => {
                           <Badge variant="outline">Gratis</Badge>
                         ) : subscription.plan === 'pro' ? (
                           <Badge className="bg-blue-500"><Zap className="h-3 w-3 mr-1" />Pro</Badge>
-                        ) : (
+                        ) : subscription.plan === 'premium' ? (
                           <Badge className="bg-purple-500"><Crown className="h-3 w-3 mr-1" />Premium</Badge>
+                        ) : (
+                          <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500"><Star className="h-3 w-3 mr-1" />Gold</Badge>
                         )}
                       </div>
                     )}
@@ -326,6 +334,36 @@ const Index = () => {
                     <PhaseCard phaseId="content-atomizer-advanced" title="Atomización (15)" description="Convierte en 15 formatos" isUnlocked={isPhaseUnlocked('content-atomizer-advanced')} isCompleted={isPhaseCompleted('content-atomizer-advanced')} onClick={() => handlePhaseClick('content-atomizer-advanced')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('content-atomizer-advanced') || 'free'} hasRequiredPlan={hasRequiredPlan('content-atomizer-advanced')} />
                     <PhaseCard phaseId="pre-viral-trends" title="Tendencias" description="Pre-viral 24-48h" isUnlocked={isPhaseUnlocked('pre-viral-trends')} isCompleted={isPhaseCompleted('pre-viral-trends')} onClick={() => handlePhaseClick('pre-viral-trends')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('pre-viral-trends') || 'free'} hasRequiredPlan={hasRequiredPlan('pre-viral-trends')} />
                   </div>
+                </div>
+
+                {/* AI Agents - GOLD */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <Star className="h-5 w-5 text-amber-500" />
+                    Agentes IA Especializados
+                    <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white">GOLD</Badge>
+                  </h3>
+                  <Card 
+                    className={`transition-all cursor-pointer hover:shadow-lg border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-yellow-500/5 ${!isPhaseUnlocked('ai-agency') ? 'opacity-60' : ''}`}
+                    onClick={() => handlePhaseClick('ai-agency')}
+                  >
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                          {isPhaseUnlocked('ai-agency') ? (
+                            <Star className="h-6 w-6 text-amber-500" />
+                          ) : (
+                            <Lock className="h-6 w-6" />
+                          )}
+                          Agencia de Marketing IA
+                        </CardTitle>
+                        <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white">16+ Especialistas</Badge>
+                      </div>
+                      <CardDescription>
+                        Tu equipo virtual de especialistas trabajando 24/7: CEO Digital, Director Estratégico, Copywriter, SEO Manager, Paid Media, Growth Optimizer, CRM Expert, Director Creativo y más.
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
                 </div>
               </div>
             </div>
