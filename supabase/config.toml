@@ -64,6 +64,21 @@ verify_jwt = false
 [functions.roadmap-prioritizer]
 verify_jwt = false
 
+[functions.video-script-generator]
+verify_jwt = false
+
+[functions.podcast-generator]
+verify_jwt = false
+
+[functions.article-generator]
+verify_jwt = false
+
+[functions.seo-analyzer]
+verify_jwt = false
+
+[functions.aeo-analyzer]
+verify_jwt = false
+
 [edge_runtime]
 policy = "per_worker"
 inspector_port = 8083

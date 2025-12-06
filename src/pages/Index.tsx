@@ -18,6 +18,11 @@ import ApprovalSystemForm from "@/components/ApprovalSystemForm";
 import TeamCollaborationForm from "@/components/TeamCollaborationForm";
 import { SentimentAnalysisForm } from "@/components/SentimentAnalysisForm";
 import ReportsAndROIForm from "@/components/ReportsAndROIForm";
+import { VideoScriptGenerator } from "@/components/VideoScriptGenerator";
+import { PodcastGenerator } from "@/components/PodcastGenerator";
+import { ArticleGenerator } from "@/components/ArticleGenerator";
+import { SEOAnalyzer } from "@/components/SEOAnalyzer";
+import { AEOAnalyzer } from "@/components/AEOAnalyzer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +32,7 @@ import { Lock, CheckCircle2, Award, Crown, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { SubscriptionPlan } from "@/types/user-progress";
 
-type Phase = 'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system' | 'team-collaboration' | 'sentiment-analysis' | 'reports-roi';
+type Phase = 'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system' | 'team-collaboration' | 'sentiment-analysis' | 'reports-roi' | 'video-script-generator' | 'podcast-generator' | 'article-generator' | 'seo-analyzer' | 'aeo-analyzer';
 
 interface PhaseCardProps {
   phaseId: string;
@@ -180,6 +185,16 @@ const Index = () => {
         return <SentimentAnalysisForm />;
       case 'reports-roi':
         return <ReportsAndROIForm />;
+      case 'video-script-generator':
+        return <VideoScriptGenerator />;
+      case 'podcast-generator':
+        return <PodcastGenerator />;
+      case 'article-generator':
+        return <ArticleGenerator />;
+      case 'seo-analyzer':
+        return <SEOAnalyzer />;
+      case 'aeo-analyzer':
+        return <AEOAnalyzer />;
       default:
         const completionPercentage = getCompletionPercentage();
 
@@ -431,6 +446,61 @@ const Index = () => {
                       className="border-violet-200"
                       requiredPlan={getRequiredPlanForPhase('reports-roi') || 'free'}
                       hasRequiredPlan={hasRequiredPlan('reports-roi')}
+                    />
+                    <PhaseCard
+                      phaseId="video-script-generator"
+                      title="Videos"
+                      description="Scripts y storyboards"
+                      isUnlocked={isPhaseUnlocked('video-script-generator')}
+                      isCompleted={isPhaseCompleted('video-script-generator')}
+                      onClick={() => handlePhaseClick('video-script-generator')}
+                      className="border-red-200"
+                      requiredPlan={getRequiredPlanForPhase('video-script-generator') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('video-script-generator')}
+                    />
+                    <PhaseCard
+                      phaseId="podcast-generator"
+                      title="Podcasts"
+                      description="Guiones y estructura"
+                      isUnlocked={isPhaseUnlocked('podcast-generator')}
+                      isCompleted={isPhaseCompleted('podcast-generator')}
+                      onClick={() => handlePhaseClick('podcast-generator')}
+                      className="border-orange-200"
+                      requiredPlan={getRequiredPlanForPhase('podcast-generator') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('podcast-generator')}
+                    />
+                    <PhaseCard
+                      phaseId="article-generator"
+                      title="Artículos"
+                      description="Blog y LinkedIn"
+                      isUnlocked={isPhaseUnlocked('article-generator')}
+                      isCompleted={isPhaseCompleted('article-generator')}
+                      onClick={() => handlePhaseClick('article-generator')}
+                      className="border-blue-200"
+                      requiredPlan={getRequiredPlanForPhase('article-generator') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('article-generator')}
+                    />
+                    <PhaseCard
+                      phaseId="seo-analyzer"
+                      title="SEO"
+                      description="Optimización buscadores"
+                      isUnlocked={isPhaseUnlocked('seo-analyzer')}
+                      isCompleted={isPhaseCompleted('seo-analyzer')}
+                      onClick={() => handlePhaseClick('seo-analyzer')}
+                      className="border-green-200"
+                      requiredPlan={getRequiredPlanForPhase('seo-analyzer') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('seo-analyzer')}
+                    />
+                    <PhaseCard
+                      phaseId="aeo-analyzer"
+                      title="AEO"
+                      description="Optimización para IA"
+                      isUnlocked={isPhaseUnlocked('aeo-analyzer')}
+                      isCompleted={isPhaseCompleted('aeo-analyzer')}
+                      onClick={() => handlePhaseClick('aeo-analyzer')}
+                      className="border-purple-200"
+                      requiredPlan={getRequiredPlanForPhase('aeo-analyzer') || 'free'}
+                      hasRequiredPlan={hasRequiredPlan('aeo-analyzer')}
                     />
                   </div>
                 </div>

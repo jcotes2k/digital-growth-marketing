@@ -29,6 +29,11 @@ export const PHASE_CONFIG: PhaseConfig[] = [
   { id: 'team-collaboration', name: 'Colaboración', description: 'Trabajo en equipo', order: 16, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
   { id: 'sentiment-analysis', name: 'Análisis de Sentimientos', description: 'Monitorea menciones', order: 17, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
   { id: 'reports-roi', name: 'Reportes y ROI', description: 'Exporta y calcula ROI', order: 18, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'video-script-generator', name: 'Generador de Videos', description: 'Scripts y storyboards', order: 19, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'podcast-generator', name: 'Generador de Podcasts', description: 'Guiones y estructura', order: 20, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'article-generator', name: 'Generador de Artículos', description: 'Artículos SEO optimizados', order: 21, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'seo-analyzer', name: 'Analizador SEO', description: 'Optimización buscadores', order: 22, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
+  { id: 'aeo-analyzer', name: 'Analizador AEO', description: 'Optimización para IA', order: 23, requires: ['intelligent-content-strategy'], requiredPlan: 'premium' },
 ];
 
 const PLAN_HIERARCHY: Record<SubscriptionPlan, number> = {
