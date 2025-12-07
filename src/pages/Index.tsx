@@ -247,16 +247,26 @@ const Index = () => {
                       </p>
                     </div>
                     {subscription && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">Plan actual:</span>
-                        {subscription.plan === 'free' ? (
-                          <Badge variant="outline">Gratis</Badge>
-                        ) : subscription.plan === 'pro' ? (
-                          <Badge className="bg-blue-500"><Zap className="h-3 w-3 mr-1" />Pro</Badge>
-                        ) : subscription.plan === 'premium' ? (
-                          <Badge className="bg-purple-500"><Crown className="h-3 w-3 mr-1" />Premium</Badge>
-                        ) : (
-                          <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500"><Star className="h-3 w-3 mr-1" />Gold</Badge>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">Plan actual:</span>
+                          {subscription.plan === 'free' ? (
+                            <Badge variant="outline">Gratis</Badge>
+                          ) : subscription.plan === 'pro' ? (
+                            <Badge className="bg-blue-500"><Zap className="h-3 w-3 mr-1" />Pro</Badge>
+                          ) : subscription.plan === 'premium' ? (
+                            <Badge className="bg-purple-500"><Crown className="h-3 w-3 mr-1" />Premium</Badge>
+                          ) : (
+                            <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500"><Star className="h-3 w-3 mr-1" />Gold</Badge>
+                          )}
+                        </div>
+                        {subscription.plan !== 'gold' && (
+                          <Button asChild size="sm" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                            <Link to="/checkout?plan=gold">
+                              <Crown className="h-4 w-4 mr-1" />
+                              Cambiar Plan
+                            </Link>
+                          </Button>
                         )}
                       </div>
                     )}
