@@ -92,22 +92,30 @@ export function RegistrationForm() {
       if (authError) throw authError;
 
       if (authData.user) {
-        // Create subscription record
+        // Create subscription record (free by default, will be upgraded after payment)
         const { error: subError } = await supabase
           .from("user_subscriptions")
           .insert({
             user_id: authData.user.id,
-            plan: data.plan,
+            plan: data.plan === 'free' ? 'free' : 'free', // Start as free, upgrade after payment
           });
 
         if (subError) throw subError;
 
-        toast({
-          title: "¡Registro exitoso!",
-          description: "Tu cuenta ha sido creada correctamente.",
-        });
-
-        navigate("/");
+        // If paid plan, redirect to checkout
+        if (data.plan !== 'free') {
+          toast({
+            title: "¡Cuenta creada!",
+            description: "Ahora completa tu suscripción para activar el plan " + data.plan.toUpperCase(),
+          });
+          navigate(`/checkout?plan=${data.plan}`);
+        } else {
+          toast({
+            title: "¡Registro exitoso!",
+            description: "Tu cuenta ha sido creada correctamente.",
+          });
+          navigate("/");
+        }
       }
     } catch (error: any) {
       toast({

@@ -106,6 +106,12 @@ verify_jwt = false
 [functions.agent-chat]
 verify_jwt = false
 
+[functions.epayco-create-session]
+verify_jwt = false
+
+[functions.epayco-webhook]
+verify_jwt = false
+
 [edge_runtime]
 policy = "per_worker"
 inspector_port = 8083
