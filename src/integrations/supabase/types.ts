@@ -433,6 +433,45 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          epayco_ref: string | null
+          id: string
+          plan: string
+          response_data: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          epayco_ref?: string | null
+          id?: string
+          plan: string
+          response_data?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          epayco_ref?: string | null
+          id?: string
+          plan?: string
+          response_data?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       persona_archetypes: {
         Row: {
           created_at: string
