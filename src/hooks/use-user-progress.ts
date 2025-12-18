@@ -244,6 +244,19 @@ export const useUserProgress = () => {
     return null;
   };
 
+  // Check if phase is included in user's plan (even if locked by progress)
+  const isPhaseIncludedInPlan = (phaseId: string): boolean => {
+    if (isAdmin) return true;
+    
+    const phase = PHASE_CONFIG.find(p => p.id === phaseId);
+    if (!phase) return false;
+    
+    const userPlanLevel = subscription ? PLAN_HIERARCHY[subscription.plan] : PLAN_HIERARCHY['free'];
+    const requiredPlanLevel = PLAN_HIERARCHY[phase.requiredPlan];
+    
+    return userPlanLevel >= requiredPlanLevel;
+  };
+
   return {
     progress,
     subscription,
@@ -255,6 +268,7 @@ export const useUserProgress = () => {
     getNextPhase,
     getRequiredPlanForPhase,
     hasRequiredPlan,
+    isPhaseIncludedInPlan,
     user,
     isAdmin,
   };
