@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BuyerPersonaForm } from "@/components/BuyerPersonaForm";
 import { BusinessCanvasForm } from "@/components/BusinessCanvasForm";
 import { ProductRoadmapForm } from "@/components/ProductRoadmapForm";
@@ -37,8 +37,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useUserProgress } from "@/hooks/use-user-progress";
-import { Lock, CheckCircle2, Award, Crown, Zap, Star } from "lucide-react";
+import { Lock, CheckCircle2, Award, Crown, Zap, Star, LogOut, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import type { SubscriptionPlan } from "@/types/user-progress";
 
 type Phase = 'menu' | 'buyer-persona' | 'business-canvas' | 'product-roadmap' | 'content-strategy' | 'intelligent-content-strategy' | 'analytics-insights' | 'content-generator' | 'editorial-calendar' | 'competitor-analyzer' | 'ai-image-bank' | 'hashtag-generator' | 'post-templates' | 'post-scheduler' | 'realtime-dashboard' | 'approval-system' | 'team-collaboration' | 'sentiment-analysis' | 'reports-roi' | 'video-script-generator' | 'podcast-generator' | 'article-generator' | 'seo-analyzer' | 'aeo-analyzer' | 'content-atomizer-basic' | 'content-atomizer-advanced' | 'virality-predictor' | 'voice-cloning' | 'content-fatigue' | 'interactive-content' | 'evergreen-recycler' | 'pre-viral-trends' | 'revenue-attribution' | 'ai-agency';
@@ -118,6 +119,7 @@ const PhaseCard = ({ phaseId, title, description, isUnlocked, isCompleted, onCli
 const Index = () => {
   const [currentPhase, setCurrentPhase] = useState<Phase>('menu');
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const {
     isPhaseUnlocked,
@@ -129,6 +131,15 @@ const Index = () => {
     subscription,
     user,
   } = useUserProgress();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: "Sesión cerrada",
+      description: "Has cerrado sesión correctamente",
+    });
+    navigate('/auth');
+  };
 
   const handlePhaseClick = (phaseId: string) => {
     if (!isPhaseUnlocked(phaseId)) {
@@ -246,10 +257,16 @@ const Index = () => {
                         {completionPercentage}% completado
                       </p>
                     </div>
-                    {subscription && (
-                      <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                      {/* User info */}
+                      <div className="flex items-center gap-2 text-sm">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">{user.email}</span>
+                      </div>
+                      
+                      {subscription && (
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">Plan actual:</span>
+                          <span className="text-sm text-muted-foreground">Plan:</span>
                           {subscription.plan === 'free' ? (
                             <Badge variant="outline">Gratis</Badge>
                           ) : subscription.plan === 'pro' ? (
@@ -260,16 +277,28 @@ const Index = () => {
                             <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500"><Star className="h-3 w-3 mr-1" />Gold</Badge>
                           )}
                         </div>
-                        {subscription.plan !== 'gold' && (
-                          <Button asChild size="sm" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-                            <Link to="/checkout?plan=gold">
-                              <Crown className="h-4 w-4 mr-1" />
-                              Cambiar Plan
-                            </Link>
-                          </Button>
-                        )}
-                      </div>
-                    )}
+                      )}
+                      
+                      {subscription && subscription.plan !== 'gold' && (
+                        <Button asChild size="sm" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                          <Link to="/checkout?plan=gold">
+                            <Crown className="h-4 w-4 mr-1" />
+                            Cambiar Plan
+                          </Link>
+                        </Button>
+                      )}
+                      
+                      {/* Logout button */}
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={handleLogout}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <LogOut className="h-4 w-4 mr-1" />
+                        Salir
+                      </Button>
+                    </div>
                   </div>
                   <Progress value={completionPercentage} className="h-3" />
                 </div>
