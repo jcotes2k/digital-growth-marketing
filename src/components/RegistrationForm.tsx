@@ -273,9 +273,9 @@ export function RegistrationForm() {
                     isSelected={field.value === "premium"}
                     onClick={() => field.onChange("premium")}
                   />
-                  <PlanCard
-                    name="GOLD"
-                    price="$49"
+              <PlanCard
+                name="GOLD"
+                price="$5"
                     period="/mes"
                     features={[
                       "Todo lo de PREMIUM",
