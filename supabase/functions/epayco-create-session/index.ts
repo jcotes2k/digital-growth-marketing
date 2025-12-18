@@ -8,7 +8,7 @@ const corsHeaders = {
 const PLAN_PRICES: Record<string, { amount: number; name: string }> = {
   pro: { amount: 19, name: 'Plan PRO' },
   premium: { amount: 39, name: 'Plan PREMIUM' },
-  gold: { amount: 49, name: 'Plan GOLD' },
+  gold: { amount: 1, name: 'Plan GOLD - Promoción' },
 };
 
 serve(async (req) => {
