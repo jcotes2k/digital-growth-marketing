@@ -37,7 +37,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useUserProgress } from "@/hooks/use-user-progress";
-import { Lock, CheckCircle2, Award, Crown, Zap, Star, LogOut, User } from "lucide-react";
+import { Lock, CheckCircle2, Award, Crown, Zap, Star, LogOut, User, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { SubscriptionPlan } from "@/types/user-progress";
@@ -54,6 +54,7 @@ interface PhaseCardProps {
   className?: string;
   requiredPlan?: SubscriptionPlan;
   hasRequiredPlan?: boolean;
+  isIncludedInPlan?: boolean;
 }
 
 const getPlanBadge = (plan: SubscriptionPlan) => {
@@ -78,39 +79,63 @@ const getPlanName = (plan: SubscriptionPlan) => {
   }
 };
 
-const PhaseCard = ({ phaseId, title, description, isUnlocked, isCompleted, onClick, className = "", requiredPlan, hasRequiredPlan }: PhaseCardProps) => {
+const PhaseCard = ({ phaseId, title, description, isUnlocked, isCompleted, onClick, className = "", requiredPlan, hasRequiredPlan, isIncludedInPlan }: PhaseCardProps) => {
   const showPlanBadge = requiredPlan && requiredPlan !== 'free';
   const isLockedByPlan = !hasRequiredPlan && requiredPlan && requiredPlan !== 'free';
+  const isLockedByProgress = hasRequiredPlan && !isUnlocked && !isCompleted;
+  
+  // Visual states:
+  // 1. Completed: green border, checkmark
+  // 2. Unlocked: normal, clickable
+  // 3. Included in plan but locked by progress: dashed border, clock icon, "Próximamente"
+  // 4. Not in plan: grayed out, lock icon, "Upgrade"
   
   return (
     <Card 
       className={`transition-all ${
-        isUnlocked 
-          ? 'cursor-pointer hover:shadow-lg hover:scale-[1.02]' 
-          : 'opacity-50 cursor-not-allowed'
-      } ${isCompleted ? 'border-green-500 border-2' : ''} ${isLockedByPlan ? 'border-dashed' : ''} ${className}`}
+        isCompleted 
+          ? 'border-green-500 border-2 bg-green-50/50 dark:bg-green-950/20' 
+          : isUnlocked 
+            ? 'cursor-pointer hover:shadow-lg hover:scale-[1.02]' 
+            : isLockedByProgress
+              ? 'border-dashed border-2 border-primary/50 opacity-80 bg-primary/5'
+              : 'opacity-40 cursor-not-allowed border-muted'
+      } ${className}`}
       onClick={isUnlocked ? onClick : undefined}
     >
-      <CardHeader>
+      <CardHeader className="p-4">
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2 text-base">
             {isCompleted ? (
               <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
             ) : isUnlocked ? (
-              <div className="h-5 w-5 rounded-full border-2 flex-shrink-0" />
+              <div className="h-5 w-5 rounded-full border-2 border-primary flex-shrink-0" />
+            ) : isLockedByProgress ? (
+              <Clock className="h-5 w-5 text-primary flex-shrink-0" />
             ) : (
-              <Lock className="h-5 w-5 flex-shrink-0" />
+              <Lock className="h-5 w-5 text-muted-foreground flex-shrink-0" />
             )}
             <span className="line-clamp-1">{title}</span>
           </CardTitle>
-          <div className="flex gap-1">
+          <div className="flex gap-1 flex-wrap justify-end">
             {isCompleted && (
               <Badge className="bg-green-500 text-xs shrink-0">✓</Badge>
+            )}
+            {isLockedByProgress && (
+              <Badge variant="outline" className="text-xs shrink-0 border-primary text-primary">Próximamente</Badge>
+            )}
+            {isLockedByPlan && (
+              <Badge variant="destructive" className="text-xs shrink-0">Upgrade</Badge>
             )}
             {showPlanBadge && requiredPlan && getPlanBadge(requiredPlan)}
           </div>
         </div>
-        <CardDescription className="text-sm line-clamp-2">{description}</CardDescription>
+        <CardDescription className="text-sm line-clamp-2">
+          {isLockedByProgress 
+            ? "Completa las fases anteriores para desbloquear"
+            : description
+          }
+        </CardDescription>
       </CardHeader>
     </Card>
   );
@@ -128,6 +153,7 @@ const Index = () => {
     getCompletionPercentage,
     getRequiredPlanForPhase,
     hasRequiredPlan,
+    isPhaseIncludedInPlan,
     subscription,
     user,
   } = useUserProgress();
@@ -321,57 +347,87 @@ const Index = () => {
                 )}
               </div>
 
+              {/* Legend for visual states */}
+              {user && subscription && (
+                <div className="mb-6 p-4 bg-muted/50 rounded-lg border">
+                  <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <span>Completada</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 rounded-full border-2 border-primary" />
+                      <span>Lista para usar</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span className="text-primary font-medium">Incluida en tu plan (completa fases previas)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Lock className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Requiere upgrade</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-6">
                 {/* Core Phases */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Fases Principales</h3>
+                  <h3 className="text-lg font-semibold mb-3">Fases Principales <Badge variant="outline" className="ml-2">Gratis</Badge></h3>
                   <div className="grid md:grid-cols-3 gap-4">
-                    <PhaseCard phaseId="buyer-persona" title="Buyer Persona" description="Define tu cliente ideal" isUnlocked={isPhaseUnlocked('buyer-persona')} isCompleted={isPhaseCompleted('buyer-persona')} onClick={() => handlePhaseClick('buyer-persona')} />
-                    <PhaseCard phaseId="business-canvas" title="Business Canvas" description="Modelo de negocio" isUnlocked={isPhaseUnlocked('business-canvas')} isCompleted={isPhaseCompleted('business-canvas')} onClick={() => handlePhaseClick('business-canvas')} />
-                    <PhaseCard phaseId="product-roadmap" title="Product Roadmap" description="Planificación de producto" isUnlocked={isPhaseUnlocked('product-roadmap')} isCompleted={isPhaseCompleted('product-roadmap')} onClick={() => handlePhaseClick('product-roadmap')} />
-                    <PhaseCard phaseId="content-strategy" title="Estrategia de Contenido" description="Define tu estrategia" isUnlocked={isPhaseUnlocked('content-strategy')} isCompleted={isPhaseCompleted('content-strategy')} onClick={() => handlePhaseClick('content-strategy')} />
-                    <PhaseCard phaseId="intelligent-content-strategy" title="Estrategia Inteligente" description="Estrategia con IA" isUnlocked={isPhaseUnlocked('intelligent-content-strategy')} isCompleted={isPhaseCompleted('intelligent-content-strategy')} onClick={() => handlePhaseClick('intelligent-content-strategy')} />
-                    <PhaseCard phaseId="analytics-insights" title="Analytics & Insights" description="Análisis profundo" isUnlocked={isPhaseUnlocked('analytics-insights')} isCompleted={isPhaseCompleted('analytics-insights')} onClick={() => handlePhaseClick('analytics-insights')} />
+                    <PhaseCard phaseId="buyer-persona" title="Buyer Persona" description="Define tu cliente ideal" isUnlocked={isPhaseUnlocked('buyer-persona')} isCompleted={isPhaseCompleted('buyer-persona')} onClick={() => handlePhaseClick('buyer-persona')} isIncludedInPlan={isPhaseIncludedInPlan('buyer-persona')} hasRequiredPlan={hasRequiredPlan('buyer-persona')} />
+                    <PhaseCard phaseId="business-canvas" title="Business Canvas" description="Modelo de negocio" isUnlocked={isPhaseUnlocked('business-canvas')} isCompleted={isPhaseCompleted('business-canvas')} onClick={() => handlePhaseClick('business-canvas')} isIncludedInPlan={isPhaseIncludedInPlan('business-canvas')} hasRequiredPlan={hasRequiredPlan('business-canvas')} />
+                    <PhaseCard phaseId="product-roadmap" title="Product Roadmap" description="Planificación de producto" isUnlocked={isPhaseUnlocked('product-roadmap')} isCompleted={isPhaseCompleted('product-roadmap')} onClick={() => handlePhaseClick('product-roadmap')} isIncludedInPlan={isPhaseIncludedInPlan('product-roadmap')} hasRequiredPlan={hasRequiredPlan('product-roadmap')} />
+                    <PhaseCard phaseId="content-strategy" title="Estrategia de Contenido" description="Define tu estrategia" isUnlocked={isPhaseUnlocked('content-strategy')} isCompleted={isPhaseCompleted('content-strategy')} onClick={() => handlePhaseClick('content-strategy')} isIncludedInPlan={isPhaseIncludedInPlan('content-strategy')} hasRequiredPlan={hasRequiredPlan('content-strategy')} />
+                    <PhaseCard phaseId="intelligent-content-strategy" title="Estrategia Inteligente" description="Estrategia con IA" isUnlocked={isPhaseUnlocked('intelligent-content-strategy')} isCompleted={isPhaseCompleted('intelligent-content-strategy')} onClick={() => handlePhaseClick('intelligent-content-strategy')} isIncludedInPlan={isPhaseIncludedInPlan('intelligent-content-strategy')} hasRequiredPlan={hasRequiredPlan('intelligent-content-strategy')} />
+                    <PhaseCard phaseId="analytics-insights" title="Analytics & Insights" description="Análisis profundo" isUnlocked={isPhaseUnlocked('analytics-insights')} isCompleted={isPhaseCompleted('analytics-insights')} onClick={() => handlePhaseClick('analytics-insights')} isIncludedInPlan={isPhaseIncludedInPlan('analytics-insights')} hasRequiredPlan={hasRequiredPlan('analytics-insights')} />
                   </div>
                 </div>
 
                 {/* Content Tools - PRO */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Herramientas de Contenido</h3>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    Herramientas de Contenido
+                    <Badge className="bg-blue-500 text-white"><Zap className="h-3 w-3 mr-1" />PRO</Badge>
+                  </h3>
                   <div className="grid md:grid-cols-4 gap-4">
-                    <PhaseCard phaseId="content-generator" title="Generador" description="Crea contenido con IA" isUnlocked={isPhaseUnlocked('content-generator')} isCompleted={isPhaseCompleted('content-generator')} onClick={() => handlePhaseClick('content-generator')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('content-generator') || 'free'} hasRequiredPlan={hasRequiredPlan('content-generator')} />
-                    <PhaseCard phaseId="editorial-calendar" title="Calendario" description="Planifica contenido" isUnlocked={isPhaseUnlocked('editorial-calendar')} isCompleted={isPhaseCompleted('editorial-calendar')} onClick={() => handlePhaseClick('editorial-calendar')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('editorial-calendar') || 'free'} hasRequiredPlan={hasRequiredPlan('editorial-calendar')} />
-                    <PhaseCard phaseId="competitor-analyzer" title="Competencia" description="Análisis competitivo" isUnlocked={isPhaseUnlocked('competitor-analyzer')} isCompleted={isPhaseCompleted('competitor-analyzer')} onClick={() => handlePhaseClick('competitor-analyzer')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('competitor-analyzer') || 'free'} hasRequiredPlan={hasRequiredPlan('competitor-analyzer')} />
-                    <PhaseCard phaseId="content-atomizer-basic" title="Atomización (5)" description="Convierte en 5 formatos" isUnlocked={isPhaseUnlocked('content-atomizer-basic')} isCompleted={isPhaseCompleted('content-atomizer-basic')} onClick={() => handlePhaseClick('content-atomizer-basic')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('content-atomizer-basic') || 'free'} hasRequiredPlan={hasRequiredPlan('content-atomizer-basic')} />
-                    <PhaseCard phaseId="virality-predictor" title="Predictor Viral" description="Predice engagement" isUnlocked={isPhaseUnlocked('virality-predictor')} isCompleted={isPhaseCompleted('virality-predictor')} onClick={() => handlePhaseClick('virality-predictor')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('virality-predictor') || 'free'} hasRequiredPlan={hasRequiredPlan('virality-predictor')} />
-                    <PhaseCard phaseId="interactive-content" title="Interactivo" description="Quiz, calculadoras" isUnlocked={isPhaseUnlocked('interactive-content')} isCompleted={isPhaseCompleted('interactive-content')} onClick={() => handlePhaseClick('interactive-content')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('interactive-content') || 'free'} hasRequiredPlan={hasRequiredPlan('interactive-content')} />
-                    <PhaseCard phaseId="evergreen-recycler" title="Reciclador" description="Recicla contenido" isUnlocked={isPhaseUnlocked('evergreen-recycler')} isCompleted={isPhaseCompleted('evergreen-recycler')} onClick={() => handlePhaseClick('evergreen-recycler')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('evergreen-recycler') || 'free'} hasRequiredPlan={hasRequiredPlan('evergreen-recycler')} />
+                    <PhaseCard phaseId="content-generator" title="Generador" description="Crea contenido con IA" isUnlocked={isPhaseUnlocked('content-generator')} isCompleted={isPhaseCompleted('content-generator')} onClick={() => handlePhaseClick('content-generator')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('content-generator') || 'free'} hasRequiredPlan={hasRequiredPlan('content-generator')} isIncludedInPlan={isPhaseIncludedInPlan('content-generator')} />
+                    <PhaseCard phaseId="editorial-calendar" title="Calendario" description="Planifica contenido" isUnlocked={isPhaseUnlocked('editorial-calendar')} isCompleted={isPhaseCompleted('editorial-calendar')} onClick={() => handlePhaseClick('editorial-calendar')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('editorial-calendar') || 'free'} hasRequiredPlan={hasRequiredPlan('editorial-calendar')} isIncludedInPlan={isPhaseIncludedInPlan('editorial-calendar')} />
+                    <PhaseCard phaseId="competitor-analyzer" title="Competencia" description="Análisis competitivo" isUnlocked={isPhaseUnlocked('competitor-analyzer')} isCompleted={isPhaseCompleted('competitor-analyzer')} onClick={() => handlePhaseClick('competitor-analyzer')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('competitor-analyzer') || 'free'} hasRequiredPlan={hasRequiredPlan('competitor-analyzer')} isIncludedInPlan={isPhaseIncludedInPlan('competitor-analyzer')} />
+                    <PhaseCard phaseId="content-atomizer-basic" title="Atomización (5)" description="Convierte en 5 formatos" isUnlocked={isPhaseUnlocked('content-atomizer-basic')} isCompleted={isPhaseCompleted('content-atomizer-basic')} onClick={() => handlePhaseClick('content-atomizer-basic')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('content-atomizer-basic') || 'free'} hasRequiredPlan={hasRequiredPlan('content-atomizer-basic')} isIncludedInPlan={isPhaseIncludedInPlan('content-atomizer-basic')} />
+                    <PhaseCard phaseId="virality-predictor" title="Predictor Viral" description="Predice engagement" isUnlocked={isPhaseUnlocked('virality-predictor')} isCompleted={isPhaseCompleted('virality-predictor')} onClick={() => handlePhaseClick('virality-predictor')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('virality-predictor') || 'free'} hasRequiredPlan={hasRequiredPlan('virality-predictor')} isIncludedInPlan={isPhaseIncludedInPlan('virality-predictor')} />
+                    <PhaseCard phaseId="interactive-content" title="Interactivo" description="Quiz, calculadoras" isUnlocked={isPhaseUnlocked('interactive-content')} isCompleted={isPhaseCompleted('interactive-content')} onClick={() => handlePhaseClick('interactive-content')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('interactive-content') || 'free'} hasRequiredPlan={hasRequiredPlan('interactive-content')} isIncludedInPlan={isPhaseIncludedInPlan('interactive-content')} />
+                    <PhaseCard phaseId="evergreen-recycler" title="Reciclador" description="Recicla contenido" isUnlocked={isPhaseUnlocked('evergreen-recycler')} isCompleted={isPhaseCompleted('evergreen-recycler')} onClick={() => handlePhaseClick('evergreen-recycler')} className="border-blue-200" requiredPlan={getRequiredPlanForPhase('evergreen-recycler') || 'free'} hasRequiredPlan={hasRequiredPlan('evergreen-recycler')} isIncludedInPlan={isPhaseIncludedInPlan('evergreen-recycler')} />
                   </div>
                 </div>
 
                 {/* Advanced Tools - PREMIUM */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Herramientas Avanzadas</h3>
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    Herramientas Avanzadas
+                    <Badge className="bg-purple-500 text-white"><Crown className="h-3 w-3 mr-1" />PREMIUM</Badge>
+                  </h3>
                   <div className="grid md:grid-cols-4 gap-4">
-                    <PhaseCard phaseId="realtime-dashboard" title="Dashboard" description="Métricas en vivo" isUnlocked={isPhaseUnlocked('realtime-dashboard')} isCompleted={isPhaseCompleted('realtime-dashboard')} onClick={() => handlePhaseClick('realtime-dashboard')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('realtime-dashboard') || 'free'} hasRequiredPlan={hasRequiredPlan('realtime-dashboard')} />
-                    <PhaseCard phaseId="revenue-attribution" title="Revenue" description="ROI por contenido" isUnlocked={isPhaseUnlocked('revenue-attribution')} isCompleted={isPhaseCompleted('revenue-attribution')} onClick={() => handlePhaseClick('revenue-attribution')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('revenue-attribution') || 'free'} hasRequiredPlan={hasRequiredPlan('revenue-attribution')} />
-                    <PhaseCard phaseId="approval-system" title="Aprobaciones" description="Workflow de revisión" isUnlocked={isPhaseUnlocked('approval-system')} isCompleted={isPhaseCompleted('approval-system')} onClick={() => handlePhaseClick('approval-system')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('approval-system') || 'free'} hasRequiredPlan={hasRequiredPlan('approval-system')} />
-                    <PhaseCard phaseId="team-collaboration" title="Colaboración" description="Trabajo en equipo" isUnlocked={isPhaseUnlocked('team-collaboration')} isCompleted={isPhaseCompleted('team-collaboration')} onClick={() => handlePhaseClick('team-collaboration')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('team-collaboration') || 'free'} hasRequiredPlan={hasRequiredPlan('team-collaboration')} />
-                    <PhaseCard phaseId="sentiment-analysis" title="Sentimientos" description="Análisis con IA" isUnlocked={isPhaseUnlocked('sentiment-analysis')} isCompleted={isPhaseCompleted('sentiment-analysis')} onClick={() => handlePhaseClick('sentiment-analysis')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('sentiment-analysis') || 'free'} hasRequiredPlan={hasRequiredPlan('sentiment-analysis')} />
-                    <PhaseCard phaseId="content-fatigue" title="Fatiga" description="Detecta saturación" isUnlocked={isPhaseUnlocked('content-fatigue')} isCompleted={isPhaseCompleted('content-fatigue')} onClick={() => handlePhaseClick('content-fatigue')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('content-fatigue') || 'free'} hasRequiredPlan={hasRequiredPlan('content-fatigue')} />
-                    <PhaseCard phaseId="ai-image-bank" title="Imágenes IA" description="Genera imágenes" isUnlocked={isPhaseUnlocked('ai-image-bank')} isCompleted={isPhaseCompleted('ai-image-bank')} onClick={() => handlePhaseClick('ai-image-bank')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('ai-image-bank') || 'free'} hasRequiredPlan={hasRequiredPlan('ai-image-bank')} />
-                    <PhaseCard phaseId="hashtag-generator" title="Hashtags" description="Genera hashtags" isUnlocked={isPhaseUnlocked('hashtag-generator')} isCompleted={isPhaseCompleted('hashtag-generator')} onClick={() => handlePhaseClick('hashtag-generator')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('hashtag-generator') || 'free'} hasRequiredPlan={hasRequiredPlan('hashtag-generator')} />
-                    <PhaseCard phaseId="post-templates" title="Templates" description="Plantillas de posts" isUnlocked={isPhaseUnlocked('post-templates')} isCompleted={isPhaseCompleted('post-templates')} onClick={() => handlePhaseClick('post-templates')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('post-templates') || 'free'} hasRequiredPlan={hasRequiredPlan('post-templates')} />
-                    <PhaseCard phaseId="post-scheduler" title="Programación" description="Programa posts" isUnlocked={isPhaseUnlocked('post-scheduler')} isCompleted={isPhaseCompleted('post-scheduler')} onClick={() => handlePhaseClick('post-scheduler')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('post-scheduler') || 'free'} hasRequiredPlan={hasRequiredPlan('post-scheduler')} />
-                    <PhaseCard phaseId="reports-roi" title="Reportes" description="Exporta y calcula" isUnlocked={isPhaseUnlocked('reports-roi')} isCompleted={isPhaseCompleted('reports-roi')} onClick={() => handlePhaseClick('reports-roi')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('reports-roi') || 'free'} hasRequiredPlan={hasRequiredPlan('reports-roi')} />
-                    <PhaseCard phaseId="video-script-generator" title="Videos" description="Scripts y storyboards" isUnlocked={isPhaseUnlocked('video-script-generator')} isCompleted={isPhaseCompleted('video-script-generator')} onClick={() => handlePhaseClick('video-script-generator')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('video-script-generator') || 'free'} hasRequiredPlan={hasRequiredPlan('video-script-generator')} />
-                    <PhaseCard phaseId="podcast-generator" title="Podcasts" description="Guiones y estructura" isUnlocked={isPhaseUnlocked('podcast-generator')} isCompleted={isPhaseCompleted('podcast-generator')} onClick={() => handlePhaseClick('podcast-generator')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('podcast-generator') || 'free'} hasRequiredPlan={hasRequiredPlan('podcast-generator')} />
-                    <PhaseCard phaseId="voice-cloning" title="Voice Cloning" description="Audio con ElevenLabs" isUnlocked={isPhaseUnlocked('voice-cloning')} isCompleted={isPhaseCompleted('voice-cloning')} onClick={() => handlePhaseClick('voice-cloning')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('voice-cloning') || 'free'} hasRequiredPlan={hasRequiredPlan('voice-cloning')} />
-                    <PhaseCard phaseId="article-generator" title="Artículos" description="Blog y LinkedIn" isUnlocked={isPhaseUnlocked('article-generator')} isCompleted={isPhaseCompleted('article-generator')} onClick={() => handlePhaseClick('article-generator')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('article-generator') || 'free'} hasRequiredPlan={hasRequiredPlan('article-generator')} />
-                    <PhaseCard phaseId="seo-analyzer" title="SEO" description="Optimización buscadores" isUnlocked={isPhaseUnlocked('seo-analyzer')} isCompleted={isPhaseCompleted('seo-analyzer')} onClick={() => handlePhaseClick('seo-analyzer')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('seo-analyzer') || 'free'} hasRequiredPlan={hasRequiredPlan('seo-analyzer')} />
-                    <PhaseCard phaseId="aeo-analyzer" title="AEO" description="Optimización para IA" isUnlocked={isPhaseUnlocked('aeo-analyzer')} isCompleted={isPhaseCompleted('aeo-analyzer')} onClick={() => handlePhaseClick('aeo-analyzer')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('aeo-analyzer') || 'free'} hasRequiredPlan={hasRequiredPlan('aeo-analyzer')} />
-                    <PhaseCard phaseId="content-atomizer-advanced" title="Atomización (15)" description="Convierte en 15 formatos" isUnlocked={isPhaseUnlocked('content-atomizer-advanced')} isCompleted={isPhaseCompleted('content-atomizer-advanced')} onClick={() => handlePhaseClick('content-atomizer-advanced')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('content-atomizer-advanced') || 'free'} hasRequiredPlan={hasRequiredPlan('content-atomizer-advanced')} />
-                    <PhaseCard phaseId="pre-viral-trends" title="Tendencias" description="Pre-viral 24-48h" isUnlocked={isPhaseUnlocked('pre-viral-trends')} isCompleted={isPhaseCompleted('pre-viral-trends')} onClick={() => handlePhaseClick('pre-viral-trends')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('pre-viral-trends') || 'free'} hasRequiredPlan={hasRequiredPlan('pre-viral-trends')} />
+                    <PhaseCard phaseId="realtime-dashboard" title="Dashboard" description="Métricas en vivo" isUnlocked={isPhaseUnlocked('realtime-dashboard')} isCompleted={isPhaseCompleted('realtime-dashboard')} onClick={() => handlePhaseClick('realtime-dashboard')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('realtime-dashboard') || 'free'} hasRequiredPlan={hasRequiredPlan('realtime-dashboard')} isIncludedInPlan={isPhaseIncludedInPlan('realtime-dashboard')} />
+                    <PhaseCard phaseId="revenue-attribution" title="Revenue" description="ROI por contenido" isUnlocked={isPhaseUnlocked('revenue-attribution')} isCompleted={isPhaseCompleted('revenue-attribution')} onClick={() => handlePhaseClick('revenue-attribution')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('revenue-attribution') || 'free'} hasRequiredPlan={hasRequiredPlan('revenue-attribution')} isIncludedInPlan={isPhaseIncludedInPlan('revenue-attribution')} />
+                    <PhaseCard phaseId="approval-system" title="Aprobaciones" description="Workflow de revisión" isUnlocked={isPhaseUnlocked('approval-system')} isCompleted={isPhaseCompleted('approval-system')} onClick={() => handlePhaseClick('approval-system')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('approval-system') || 'free'} hasRequiredPlan={hasRequiredPlan('approval-system')} isIncludedInPlan={isPhaseIncludedInPlan('approval-system')} />
+                    <PhaseCard phaseId="team-collaboration" title="Colaboración" description="Trabajo en equipo" isUnlocked={isPhaseUnlocked('team-collaboration')} isCompleted={isPhaseCompleted('team-collaboration')} onClick={() => handlePhaseClick('team-collaboration')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('team-collaboration') || 'free'} hasRequiredPlan={hasRequiredPlan('team-collaboration')} isIncludedInPlan={isPhaseIncludedInPlan('team-collaboration')} />
+                    <PhaseCard phaseId="sentiment-analysis" title="Sentimientos" description="Análisis con IA" isUnlocked={isPhaseUnlocked('sentiment-analysis')} isCompleted={isPhaseCompleted('sentiment-analysis')} onClick={() => handlePhaseClick('sentiment-analysis')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('sentiment-analysis') || 'free'} hasRequiredPlan={hasRequiredPlan('sentiment-analysis')} isIncludedInPlan={isPhaseIncludedInPlan('sentiment-analysis')} />
+                    <PhaseCard phaseId="content-fatigue" title="Fatiga" description="Detecta saturación" isUnlocked={isPhaseUnlocked('content-fatigue')} isCompleted={isPhaseCompleted('content-fatigue')} onClick={() => handlePhaseClick('content-fatigue')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('content-fatigue') || 'free'} hasRequiredPlan={hasRequiredPlan('content-fatigue')} isIncludedInPlan={isPhaseIncludedInPlan('content-fatigue')} />
+                    <PhaseCard phaseId="ai-image-bank" title="Imágenes IA" description="Genera imágenes" isUnlocked={isPhaseUnlocked('ai-image-bank')} isCompleted={isPhaseCompleted('ai-image-bank')} onClick={() => handlePhaseClick('ai-image-bank')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('ai-image-bank') || 'free'} hasRequiredPlan={hasRequiredPlan('ai-image-bank')} isIncludedInPlan={isPhaseIncludedInPlan('ai-image-bank')} />
+                    <PhaseCard phaseId="hashtag-generator" title="Hashtags" description="Genera hashtags" isUnlocked={isPhaseUnlocked('hashtag-generator')} isCompleted={isPhaseCompleted('hashtag-generator')} onClick={() => handlePhaseClick('hashtag-generator')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('hashtag-generator') || 'free'} hasRequiredPlan={hasRequiredPlan('hashtag-generator')} isIncludedInPlan={isPhaseIncludedInPlan('hashtag-generator')} />
+                    <PhaseCard phaseId="post-templates" title="Templates" description="Plantillas de posts" isUnlocked={isPhaseUnlocked('post-templates')} isCompleted={isPhaseCompleted('post-templates')} onClick={() => handlePhaseClick('post-templates')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('post-templates') || 'free'} hasRequiredPlan={hasRequiredPlan('post-templates')} isIncludedInPlan={isPhaseIncludedInPlan('post-templates')} />
+                    <PhaseCard phaseId="post-scheduler" title="Programación" description="Programa posts" isUnlocked={isPhaseUnlocked('post-scheduler')} isCompleted={isPhaseCompleted('post-scheduler')} onClick={() => handlePhaseClick('post-scheduler')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('post-scheduler') || 'free'} hasRequiredPlan={hasRequiredPlan('post-scheduler')} isIncludedInPlan={isPhaseIncludedInPlan('post-scheduler')} />
+                    <PhaseCard phaseId="reports-roi" title="Reportes" description="Exporta y calcula" isUnlocked={isPhaseUnlocked('reports-roi')} isCompleted={isPhaseCompleted('reports-roi')} onClick={() => handlePhaseClick('reports-roi')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('reports-roi') || 'free'} hasRequiredPlan={hasRequiredPlan('reports-roi')} isIncludedInPlan={isPhaseIncludedInPlan('reports-roi')} />
+                    <PhaseCard phaseId="video-script-generator" title="Videos" description="Scripts y storyboards" isUnlocked={isPhaseUnlocked('video-script-generator')} isCompleted={isPhaseCompleted('video-script-generator')} onClick={() => handlePhaseClick('video-script-generator')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('video-script-generator') || 'free'} hasRequiredPlan={hasRequiredPlan('video-script-generator')} isIncludedInPlan={isPhaseIncludedInPlan('video-script-generator')} />
+                    <PhaseCard phaseId="podcast-generator" title="Podcasts" description="Guiones y estructura" isUnlocked={isPhaseUnlocked('podcast-generator')} isCompleted={isPhaseCompleted('podcast-generator')} onClick={() => handlePhaseClick('podcast-generator')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('podcast-generator') || 'free'} hasRequiredPlan={hasRequiredPlan('podcast-generator')} isIncludedInPlan={isPhaseIncludedInPlan('podcast-generator')} />
+                    <PhaseCard phaseId="voice-cloning" title="Voice Cloning" description="Audio con ElevenLabs" isUnlocked={isPhaseUnlocked('voice-cloning')} isCompleted={isPhaseCompleted('voice-cloning')} onClick={() => handlePhaseClick('voice-cloning')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('voice-cloning') || 'free'} hasRequiredPlan={hasRequiredPlan('voice-cloning')} isIncludedInPlan={isPhaseIncludedInPlan('voice-cloning')} />
+                    <PhaseCard phaseId="article-generator" title="Artículos" description="Blog y LinkedIn" isUnlocked={isPhaseUnlocked('article-generator')} isCompleted={isPhaseCompleted('article-generator')} onClick={() => handlePhaseClick('article-generator')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('article-generator') || 'free'} hasRequiredPlan={hasRequiredPlan('article-generator')} isIncludedInPlan={isPhaseIncludedInPlan('article-generator')} />
+                    <PhaseCard phaseId="seo-analyzer" title="SEO" description="Optimización buscadores" isUnlocked={isPhaseUnlocked('seo-analyzer')} isCompleted={isPhaseCompleted('seo-analyzer')} onClick={() => handlePhaseClick('seo-analyzer')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('seo-analyzer') || 'free'} hasRequiredPlan={hasRequiredPlan('seo-analyzer')} isIncludedInPlan={isPhaseIncludedInPlan('seo-analyzer')} />
+                    <PhaseCard phaseId="aeo-analyzer" title="AEO" description="Optimización para IA" isUnlocked={isPhaseUnlocked('aeo-analyzer')} isCompleted={isPhaseCompleted('aeo-analyzer')} onClick={() => handlePhaseClick('aeo-analyzer')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('aeo-analyzer') || 'free'} hasRequiredPlan={hasRequiredPlan('aeo-analyzer')} isIncludedInPlan={isPhaseIncludedInPlan('aeo-analyzer')} />
+                    <PhaseCard phaseId="content-atomizer-advanced" title="Atomización (15)" description="Convierte en 15 formatos" isUnlocked={isPhaseUnlocked('content-atomizer-advanced')} isCompleted={isPhaseCompleted('content-atomizer-advanced')} onClick={() => handlePhaseClick('content-atomizer-advanced')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('content-atomizer-advanced') || 'free'} hasRequiredPlan={hasRequiredPlan('content-atomizer-advanced')} isIncludedInPlan={isPhaseIncludedInPlan('content-atomizer-advanced')} />
+                    <PhaseCard phaseId="pre-viral-trends" title="Tendencias" description="Pre-viral 24-48h" isUnlocked={isPhaseUnlocked('pre-viral-trends')} isCompleted={isPhaseCompleted('pre-viral-trends')} onClick={() => handlePhaseClick('pre-viral-trends')} className="border-purple-200" requiredPlan={getRequiredPlanForPhase('pre-viral-trends') || 'free'} hasRequiredPlan={hasRequiredPlan('pre-viral-trends')} isIncludedInPlan={isPhaseIncludedInPlan('pre-viral-trends')} />
                   </div>
                 </div>
 
@@ -380,29 +436,62 @@ const Index = () => {
                   <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                     <Star className="h-5 w-5 text-amber-500" />
                     Agentes IA Especializados
-                    <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white">GOLD</Badge>
+                    <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white"><Star className="h-3 w-3 mr-1" />GOLD</Badge>
                   </h3>
-                  <Card 
-                    className={`transition-all cursor-pointer hover:shadow-lg border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-yellow-500/5 ${!isPhaseUnlocked('ai-agency') ? 'opacity-60' : ''}`}
-                    onClick={() => handlePhaseClick('ai-agency')}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2">
-                          {isPhaseUnlocked('ai-agency') ? (
-                            <Star className="h-6 w-6 text-amber-500" />
-                          ) : (
-                            <Lock className="h-6 w-6" />
-                          )}
-                          Agencia de Marketing IA
-                        </CardTitle>
-                        <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white">16+ Especialistas</Badge>
-                      </div>
-                      <CardDescription>
-                        Tu equipo virtual de especialistas trabajando 24/7: CEO Digital, Director Estratégico, Copywriter, SEO Manager, Paid Media, Growth Optimizer, CRM Expert, Director Creativo y más.
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
+                  {(() => {
+                    const isUnlocked = isPhaseUnlocked('ai-agency');
+                    const isCompleted = isPhaseCompleted('ai-agency');
+                    const includedInPlan = isPhaseIncludedInPlan('ai-agency');
+                    const isLockedByProgress = includedInPlan && !isUnlocked && !isCompleted;
+                    const isLockedByPlan = !includedInPlan;
+                    
+                    return (
+                      <Card 
+                        className={`transition-all border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-yellow-500/5 ${
+                          isCompleted 
+                            ? 'border-green-500 border-2 cursor-pointer hover:shadow-lg'
+                            : isUnlocked 
+                              ? 'cursor-pointer hover:shadow-lg'
+                              : isLockedByProgress
+                                ? 'border-dashed border-2 border-amber-500/50 opacity-80'
+                                : 'opacity-40 cursor-not-allowed'
+                        }`}
+                        onClick={isUnlocked ? () => handlePhaseClick('ai-agency') : undefined}
+                      >
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="flex items-center gap-2">
+                              {isCompleted ? (
+                                <CheckCircle2 className="h-6 w-6 text-green-500" />
+                              ) : isUnlocked ? (
+                                <Star className="h-6 w-6 text-amber-500" />
+                              ) : isLockedByProgress ? (
+                                <Clock className="h-6 w-6 text-amber-500" />
+                              ) : (
+                                <Lock className="h-6 w-6 text-muted-foreground" />
+                              )}
+                              Agencia de Marketing IA
+                            </CardTitle>
+                            <div className="flex gap-2">
+                              {isLockedByProgress && (
+                                <Badge variant="outline" className="border-amber-500 text-amber-600">Próximamente</Badge>
+                              )}
+                              {isLockedByPlan && (
+                                <Badge variant="destructive">Upgrade</Badge>
+                              )}
+                              <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white">16+ Especialistas</Badge>
+                            </div>
+                          </div>
+                          <CardDescription>
+                            {isLockedByProgress 
+                              ? "Completa las fases anteriores para desbloquear tu equipo de IA"
+                              : "Tu equipo virtual de especialistas trabajando 24/7: CEO Digital, Director Estratégico, Copywriter, SEO Manager, Paid Media, Growth Optimizer, CRM Expert, Director Creativo y más."
+                            }
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
