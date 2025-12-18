@@ -3,6 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Clock, Home, ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 type PaymentStatus = 'success' | 'pending' | 'error' | 'loading';
 
@@ -11,20 +12,46 @@ export default function PaymentResponse() {
   const [status, setStatus] = useState<PaymentStatus>('loading');
 
   useEffect(() => {
-    // ePayco response parameters
-    const refPayco = searchParams.get("ref_payco");
-    const codResponse = searchParams.get("x_cod_response");
-    const response = searchParams.get("x_response");
+    const checkPaymentStatus = async () => {
+      const refPayco = searchParams.get("ref_payco");
+      const codResponse = searchParams.get("x_cod_response");
+      const response = searchParams.get("x_response");
 
-    // Map ePayco response codes
-    // 1 = Approved, 2 = Rejected, 3 = Pending, 4 = Failed
-    if (codResponse === '1' || response === 'Aceptada') {
-      setStatus('success');
-    } else if (codResponse === '3' || response === 'Pendiente') {
-      setStatus('pending');
-    } else {
-      setStatus('error');
-    }
+      // First check URL parameters if available
+      if (codResponse === '1' || response === 'Aceptada') {
+        setStatus('success');
+        return;
+      }
+      if (codResponse === '3' || response === 'Pendiente') {
+        setStatus('pending');
+        return;
+      }
+      if (codResponse === '2' || codResponse === '4' || response === 'Rechazada') {
+        setStatus('error');
+        return;
+      }
+
+      // If only ref_payco is available, query the database
+      if (refPayco) {
+        const { data } = await supabase
+          .from('payment_transactions')
+          .select('status')
+          .eq('epayco_ref', refPayco)
+          .maybeSingle();
+
+        if (data?.status === 'approved') {
+          setStatus('success');
+        } else if (data?.status === 'pending') {
+          setStatus('pending');
+        } else {
+          setStatus('error');
+        }
+      } else {
+        setStatus('error');
+      }
+    };
+
+    checkPaymentStatus();
   }, [searchParams]);
 
   const statusConfig = {
