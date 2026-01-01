@@ -275,7 +275,7 @@ export function RegistrationForm() {
                   />
               <PlanCard
                 name="GOLD"
-                price="$5"
+                price="$49"
                     period="/mes"
                     features={[
                       "Todo lo de PREMIUM",
