@@ -29,7 +29,7 @@ interface EPaycoCheckoutProps {
 const PLAN_DETAILS = {
   pro: { name: 'PRO', price: 19, color: 'text-primary', promo: false },
   premium: { name: 'PREMIUM', price: 39, color: 'text-primary', promo: false },
-  gold: { name: 'GOLD - Promoción', price: 5, color: 'text-amber-500', promo: true },
+  gold: { name: 'GOLD', price: 49, color: 'text-amber-500', promo: false },
 };
 
 export function EPaycoCheckout({ userId, userEmail, userName, plan, onSuccess, onError }: EPaycoCheckoutProps) {
