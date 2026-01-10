@@ -36,8 +36,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import { useUserProgress } from "@/hooks/use-user-progress";
-import { Lock, CheckCircle2, Award, Crown, Zap, Star, LogOut, User, Clock } from "lucide-react";
+import { useTrial } from "@/hooks/use-trial";
+import { Lock, CheckCircle2, Award, Crown, Zap, Star, LogOut, User, Clock, Gift, Timer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { SubscriptionPlan } from "@/types/user-progress";
@@ -143,6 +145,7 @@ const PhaseCard = ({ phaseId, title, description, isUnlocked, isCompleted, onCli
 
 const Index = () => {
   const [currentPhase, setCurrentPhase] = useState<Phase>('menu');
+  const [trialCode, setTrialCode] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -156,7 +159,10 @@ const Index = () => {
     isPhaseIncludedInPlan,
     subscription,
     user,
+    loadProgress,
   } = useUserProgress();
+
+  const { activateTrial, isActivating, getRemainingDays } = useTrial();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -166,6 +172,24 @@ const Index = () => {
     });
     navigate('/auth');
   };
+
+  const handleActivateTrial = async () => {
+    const result = await activateTrial(trialCode || undefined);
+    if (result.success) {
+      setTrialCode('');
+      await loadProgress();
+    } else {
+      toast({
+        title: "Error",
+        description: result.error || "No se pudo activar la prueba",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const remainingDays = subscription?.is_trial && subscription?.expires_at 
+    ? getRemainingDays(subscription.expires_at) 
+    : null;
 
   const handlePhaseClick = (phaseId: string) => {
     if (!isPhaseUnlocked(phaseId)) {
@@ -302,10 +326,17 @@ const Index = () => {
                           ) : (
                             <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500"><Star className="h-3 w-3 mr-1" />Gold</Badge>
                           )}
+                          {/* Trial badge with remaining days */}
+                          {subscription.is_trial && remainingDays !== null && (
+                            <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
+                              <Timer className="h-3 w-3 mr-1" />
+                              Trial: {remainingDays} {remainingDays === 1 ? 'día' : 'días'}
+                            </Badge>
+                          )}
                         </div>
                       )}
                       
-                      {subscription && subscription.plan !== 'gold' && (
+                      {subscription && subscription.plan !== 'gold' && !subscription.is_trial && (
                         <Button asChild size="sm" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
                           <Link to="/checkout?plan=gold">
                             <Crown className="h-4 w-4 mr-1" />
@@ -328,6 +359,43 @@ const Index = () => {
                   </div>
                   <Progress value={completionPercentage} className="h-3" />
                 </div>
+              )}
+
+              {/* Trial Banner for FREE users without trial */}
+              {user && subscription && subscription.plan === 'free' && !subscription.trial_code && (
+                <Card className="mb-6 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border-amber-500/30 border-2">
+                  <CardContent className="py-4">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <div className="flex items-start gap-3">
+                        <Gift className="h-8 w-8 text-amber-500 flex-shrink-0 mt-1" />
+                        <div>
+                          <h3 className="font-bold text-lg flex items-center gap-2">
+                            ⭐ Prueba GOLD por 7 días GRATIS
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            Accede a TODAS las herramientas sin pagar. Sin tarjeta de crédito.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                        <Input 
+                          placeholder="Código (opcional)" 
+                          className="w-full sm:w-32"
+                          value={trialCode}
+                          onChange={(e) => setTrialCode(e.target.value)}
+                        />
+                        <Button 
+                          onClick={handleActivateTrial}
+                          disabled={isActivating}
+                          className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
+                        >
+                          <Star className="h-4 w-4 mr-1" />
+                          {isActivating ? 'Activando...' : 'Activar Prueba'}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               )}
 
               <div className="mb-8 text-center">

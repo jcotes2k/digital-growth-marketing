@@ -126,7 +126,33 @@ export const useUserProgress = () => {
         setSubscription(newSub as UserSubscription);
       }
     } else {
-      setSubscription(subData as UserSubscription);
+      // Check if trial has expired
+      if (subData.is_trial && subData.expires_at) {
+        const expiresAt = new Date(subData.expires_at);
+        if (expiresAt < new Date()) {
+          // Trial expired - downgrade to free
+          const { data: updatedSub } = await supabase
+            .from('user_subscriptions')
+            .update({ 
+              plan: 'free', 
+              is_trial: false,
+              expires_at: null 
+            })
+            .eq('user_id', user.id)
+            .select()
+            .single();
+          
+          if (updatedSub) {
+            setSubscription(updatedSub as UserSubscription);
+          } else {
+            setSubscription(subData as UserSubscription);
+          }
+        } else {
+          setSubscription(subData as UserSubscription);
+        }
+      } else {
+        setSubscription(subData as UserSubscription);
+      }
     }
 
     setIsLoading(false);
@@ -271,5 +297,6 @@ export const useUserProgress = () => {
     isPhaseIncludedInPlan,
     user,
     isAdmin,
+    loadProgress,
   };
 };
