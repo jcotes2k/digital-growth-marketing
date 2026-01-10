@@ -773,6 +773,42 @@ export type Database = {
         }
         Relationships: []
       }
+      trial_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          current_uses: number | null
+          duration_days: number | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          plan: Database["public"]["Enums"]["subscription_plan"] | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          current_uses?: number | null
+          duration_days?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          plan?: Database["public"]["Enums"]["subscription_plan"] | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          current_uses?: number | null
+          duration_days?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          plan?: Database["public"]["Enums"]["subscription_plan"] | null
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           completed: boolean
@@ -836,8 +872,10 @@ export type Database = {
           expires_at: string | null
           id: string
           is_active: boolean
+          is_trial: boolean | null
           plan: Database["public"]["Enums"]["subscription_plan"]
           started_at: string
+          trial_code: string | null
           updated_at: string
           user_id: string
         }
@@ -846,8 +884,10 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_active?: boolean
+          is_trial?: boolean | null
           plan?: Database["public"]["Enums"]["subscription_plan"]
           started_at?: string
+          trial_code?: string | null
           updated_at?: string
           user_id: string
         }
@@ -856,8 +896,10 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_active?: boolean
+          is_trial?: boolean | null
           plan?: Database["public"]["Enums"]["subscription_plan"]
           started_at?: string
+          trial_code?: string | null
           updated_at?: string
           user_id?: string
         }

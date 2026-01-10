@@ -5,8 +5,10 @@ export interface UserSubscription {
   user_id: string;
   plan: SubscriptionPlan;
   started_at: string;
-  expires_at?: string;
+  expires_at?: string | null;
   is_active: boolean;
+  is_trial?: boolean;
+  trial_code?: string | null;
   created_at: string;
   updated_at: string;
 }
