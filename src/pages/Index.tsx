@@ -39,7 +39,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { useUserProgress } from "@/hooks/use-user-progress";
 import { useTrial } from "@/hooks/use-trial";
-import { Lock, CheckCircle2, Award, Crown, Zap, Star, LogOut, User, Clock, Gift, Timer } from "lucide-react";
+import { Lock, CheckCircle2, Award, Crown, Zap, Star, LogOut, User, Clock, Gift, Timer, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { SubscriptionPlan } from "@/types/user-progress";
@@ -159,7 +159,9 @@ const Index = () => {
     isPhaseIncludedInPlan,
     subscription,
     user,
+    isAdmin,
     loadProgress,
+    trackToolUsage,
   } = useUserProgress();
 
   const { activateTrial, isActivating, getRemainingDays } = useTrial();
@@ -211,6 +213,8 @@ const Index = () => {
       }
       return;
     }
+    // Track tool usage
+    trackToolUsage(phaseId);
     setCurrentPhase(phaseId as Phase);
   };
 
@@ -341,6 +345,16 @@ const Index = () => {
                           <Link to="/checkout?plan=gold">
                             <Crown className="h-4 w-4 mr-1" />
                             Cambiar Plan
+                          </Link>
+                        </Button>
+                      )}
+
+                      {/* Admin link */}
+                      {isAdmin && (
+                        <Button asChild size="sm" variant="outline" className="border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white">
+                          <Link to="/admin">
+                            <Shield className="h-4 w-4 mr-1" />
+                            Admin
                           </Link>
                         </Button>
                       )}

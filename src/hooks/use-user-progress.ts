@@ -283,6 +283,19 @@ export const useUserProgress = () => {
     return userPlanLevel >= requiredPlanLevel;
   };
 
+  // Track tool usage
+  const trackToolUsage = async (toolName: string) => {
+    if (!user) return;
+    try {
+      await supabase.from('tool_usage').insert({
+        user_id: user.id,
+        tool_name: toolName,
+      });
+    } catch (error) {
+      console.error('Error tracking tool usage:', error);
+    }
+  };
+
   return {
     progress,
     subscription,
@@ -298,5 +311,6 @@ export const useUserProgress = () => {
     user,
     isAdmin,
     loadProgress,
+    trackToolUsage,
   };
 };
