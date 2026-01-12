@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -22,9 +22,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { SubscriptionPlan } from "@/types/user-progress";
+import { saveReferralCode, getSavedReferralCode, clearReferralCode } from "@/hooks/use-affiliate";
 
 const BUSINESS_SECTORS = [
   "Comercio y Retail",
@@ -58,6 +59,12 @@ export function RegistrationForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Save referral code from URL on mount
+  useEffect(() => {
+    saveReferralCode();
+  }, []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -92,15 +99,24 @@ export function RegistrationForm() {
       if (authError) throw authError;
 
       if (authData.user) {
+        // Get referral code if exists
+        const referralCode = getSavedReferralCode();
+
         // Create subscription record (free by default, will be upgraded after payment)
         const { error: subError } = await supabase
           .from("user_subscriptions")
           .insert({
             user_id: authData.user.id,
             plan: data.plan === 'free' ? 'free' : 'free', // Start as free, upgrade after payment
+            referred_by: referralCode,
           });
 
         if (subError) throw subError;
+
+        // Clear the referral code after successful registration
+        if (referralCode) {
+          clearReferralCode();
+        }
 
         // If paid plan, redirect to checkout
         if (data.plan !== 'free') {
