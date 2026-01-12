@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Checkout from "./pages/Checkout";
 import PaymentResponse from "./pages/PaymentResponse";
 import Affiliate from "./pages/Affiliate";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment/response" element={<PaymentResponse />} />
           <Route path="/affiliate" element={<Affiliate />} />
+          <Route path="/admin" element={<Admin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

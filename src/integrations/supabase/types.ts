@@ -918,6 +918,33 @@ export type Database = {
         }
         Relationships: []
       }
+      tool_usage: {
+        Row: {
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          tool_name: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          tool_name: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          tool_name?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       trial_codes: {
         Row: {
           code: string
