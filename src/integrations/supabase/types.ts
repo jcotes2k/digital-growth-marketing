@@ -14,6 +14,151 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_payouts: {
+        Row: {
+          admin_notes: string | null
+          affiliate_id: string
+          amount: number
+          created_at: string
+          id: string
+          payment_details: Json | null
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          processed_at: string | null
+          requested_at: string
+          status: Database["public"]["Enums"]["payout_status"]
+        }
+        Insert: {
+          admin_notes?: string | null
+          affiliate_id: string
+          amount: number
+          created_at?: string
+          id?: string
+          payment_details?: Json | null
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          processed_at?: string | null
+          requested_at?: string
+          status?: Database["public"]["Enums"]["payout_status"]
+        }
+        Update: {
+          admin_notes?: string | null
+          affiliate_id?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_details?: Json | null
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          processed_at?: string | null
+          requested_at?: string
+          status?: Database["public"]["Enums"]["payout_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_payouts_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_referrals: {
+        Row: {
+          affiliate_id: string
+          commission_amount: number
+          created_at: string
+          id: string
+          payment_amount: number
+          referred_plan: string
+          referred_user_id: string
+          status: Database["public"]["Enums"]["referral_status"]
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id: string
+          commission_amount: number
+          created_at?: string
+          id?: string
+          payment_amount: number
+          referred_plan: string
+          referred_user_id: string
+          status?: Database["public"]["Enums"]["referral_status"]
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          payment_amount?: number
+          referred_plan?: string
+          referred_user_id?: string
+          status?: Database["public"]["Enums"]["referral_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliates: {
+        Row: {
+          account_holder: string | null
+          account_number: string | null
+          affiliate_code: string
+          bank_name: string | null
+          commission_rate: number
+          created_at: string
+          daviplata_phone: string | null
+          id: string
+          is_active: boolean
+          nequi_phone: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          pending_payout: number
+          total_earned: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_holder?: string | null
+          account_number?: string | null
+          affiliate_code: string
+          bank_name?: string | null
+          commission_rate?: number
+          created_at?: string
+          daviplata_phone?: string | null
+          id?: string
+          is_active?: boolean
+          nequi_phone?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          pending_payout?: number
+          total_earned?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_holder?: string | null
+          account_number?: string | null
+          affiliate_code?: string
+          bank_name?: string | null
+          commission_rate?: number
+          created_at?: string
+          daviplata_phone?: string | null
+          id?: string
+          is_active?: boolean
+          nequi_phone?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          pending_payout?: number
+          total_earned?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       agent_conversations: {
         Row: {
           agent_type: string
@@ -874,6 +1019,7 @@ export type Database = {
           is_active: boolean
           is_trial: boolean | null
           plan: Database["public"]["Enums"]["subscription_plan"]
+          referred_by: string | null
           started_at: string
           trial_code: string | null
           updated_at: string
@@ -886,6 +1032,7 @@ export type Database = {
           is_active?: boolean
           is_trial?: boolean | null
           plan?: Database["public"]["Enums"]["subscription_plan"]
+          referred_by?: string | null
           started_at?: string
           trial_code?: string | null
           updated_at?: string
@@ -898,6 +1045,7 @@ export type Database = {
           is_active?: boolean
           is_trial?: boolean | null
           plan?: Database["public"]["Enums"]["subscription_plan"]
+          referred_by?: string | null
           started_at?: string
           trial_code?: string | null
           updated_at?: string
@@ -959,6 +1107,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      payment_method: "bank" | "nequi" | "daviplata"
+      payout_status: "pending" | "processing" | "completed" | "failed"
+      referral_status: "pending" | "approved" | "paid"
       subscription_plan: "free" | "pro" | "premium" | "gold"
     }
     CompositeTypes: {
@@ -1088,6 +1239,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      payment_method: ["bank", "nequi", "daviplata"],
+      payout_status: ["pending", "processing", "completed", "failed"],
+      referral_status: ["pending", "approved", "paid"],
       subscription_plan: ["free", "pro", "premium", "gold"],
     },
   },

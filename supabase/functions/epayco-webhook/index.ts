@@ -83,7 +83,7 @@ serve(async (req) => {
       console.error('Error saving transaction:', transactionError);
     }
 
-    // If payment approved, update user subscription
+    // If payment approved, update user subscription and process affiliate commission
     if (status === 'approved') {
       console.log('Payment approved, updating subscription for user:', userId, 'to plan:', plan);
 
@@ -109,6 +109,9 @@ serve(async (req) => {
       } else {
         console.log('Subscription updated successfully');
       }
+
+      // Process affiliate commission
+      await processAffiliateCommission(supabase, userId, plan, parseFloat(x_amount || '0'));
     }
 
     return new Response(
@@ -127,3 +130,83 @@ serve(async (req) => {
     );
   }
 });
+
+async function processAffiliateCommission(
+  supabase: any,
+  userId: string,
+  plan: string,
+  amount: number
+) {
+  try {
+    // Get user's subscription to check if they were referred
+    const { data: subscription } = await supabase
+      .from('user_subscriptions')
+      .select('referred_by')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (!subscription?.referred_by) {
+      console.log('No referral code found for user:', userId);
+      return;
+    }
+
+    const referralCode = subscription.referred_by;
+    console.log('Processing affiliate commission for referral code:', referralCode);
+
+    // Find the affiliate by code
+    const { data: affiliate } = await supabase
+      .from('affiliates')
+      .select('*')
+      .eq('affiliate_code', referralCode)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (!affiliate) {
+      console.log('No active affiliate found for code:', referralCode);
+      return;
+    }
+
+    // Calculate 10% commission
+    const commissionRate = affiliate.commission_rate || 0.10;
+    const commissionAmount = amount * commissionRate;
+
+    console.log(`Calculating commission: ${amount} x ${commissionRate} = ${commissionAmount}`);
+
+    // Create referral record
+    const { error: referralError } = await supabase
+      .from('affiliate_referrals')
+      .insert({
+        affiliate_id: affiliate.id,
+        referred_user_id: userId,
+        referred_plan: plan,
+        payment_amount: amount,
+        commission_amount: commissionAmount,
+        status: 'approved',
+      });
+
+    if (referralError) {
+      console.error('Error creating referral record:', referralError);
+      return;
+    }
+
+    // Update affiliate's earnings
+    const newTotalEarned = (affiliate.total_earned || 0) + commissionAmount;
+    const newPendingPayout = (affiliate.pending_payout || 0) + commissionAmount;
+
+    const { error: updateError } = await supabase
+      .from('affiliates')
+      .update({
+        total_earned: newTotalEarned,
+        pending_payout: newPendingPayout,
+      })
+      .eq('id', affiliate.id);
+
+    if (updateError) {
+      console.error('Error updating affiliate earnings:', updateError);
+    } else {
+      console.log(`Commission of $${commissionAmount} credited to affiliate ${affiliate.affiliate_code}`);
+    }
+  } catch (error) {
+    console.error('Error processing affiliate commission:', error);
+  }
+}
