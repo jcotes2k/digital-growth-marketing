@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { EPaycoCheckout } from "@/components/EPaycoCheckout";
+import { EPaycoSubscriptionForm } from "@/components/EPaycoSubscriptionForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Zap, Crown, Star, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Zap, Crown, Star, Check, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -118,7 +118,7 @@ export default function Checkout() {
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-2">Elige tu Plan</h1>
             <p className="text-muted-foreground">
-              Selecciona el plan que mejor se adapte a tus necesidades
+              Suscripción mensual recurrente • Cancela cuando quieras
             </p>
           </div>
 
@@ -159,6 +159,10 @@ export default function Checkout() {
                         </li>
                       ))}
                     </ul>
+                    <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                      <RefreshCw className="h-3 w-3" />
+                      Cobro mensual automático
+                    </div>
                     <Button className="w-full" variant={plan.popular ? "default" : "outline"}>
                       Seleccionar {plan.name}
                     </Button>
@@ -169,7 +173,7 @@ export default function Checkout() {
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
-            <p>🔒 Pago seguro con ePayco • Cancela cuando quieras</p>
+            <p>🔒 Pago seguro con ePayco • Cobro mensual recurrente</p>
             <p className="mt-2 text-xs">
               <strong>Modo de prueba:</strong> Usa tarjeta 4575 6234 5678 9012, CVV 123, cualquier fecha futura
             </p>
@@ -180,12 +184,12 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 py-12">
+      <div className="max-w-4xl mx-auto space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-2">Finalizar Suscripción</h1>
           <p className="text-muted-foreground">
-            Estás a un paso de desbloquear todo el potencial
+            Ingresa tus datos de pago para activar tu suscripción mensual
           </p>
         </div>
 
@@ -202,15 +206,15 @@ export default function Checkout() {
         </div>
 
         {userData && (
-          <EPaycoCheckout
+          <EPaycoSubscriptionForm
             userId={userData.userId}
             userEmail={userData.email}
             userName={userData.name}
             plan={selectedPlan}
             onSuccess={() => {
               toast({
-                title: "Procesando pago",
-                description: "Serás redirigido a la pasarela de pago segura",
+                title: "¡Suscripción Activada!",
+                description: "Tu suscripción mensual está activa",
               });
             }}
             onError={(error) => {

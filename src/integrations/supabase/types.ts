@@ -539,6 +539,54 @@ export type Database = {
         }
         Relationships: []
       }
+      epayco_subscriptions: {
+        Row: {
+          card_brand: string | null
+          card_last_four: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          epayco_customer_id: string
+          epayco_subscription_id: string
+          epayco_token_id: string | null
+          id: string
+          plan: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          card_brand?: string | null
+          card_last_four?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          epayco_customer_id: string
+          epayco_subscription_id: string
+          epayco_token_id?: string | null
+          id?: string
+          plan: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          card_brand?: string | null
+          card_last_four?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          epayco_customer_id?: string
+          epayco_subscription_id?: string
+          epayco_token_id?: string | null
+          id?: string
+          plan?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       generated_content: {
         Row: {
           content: string
