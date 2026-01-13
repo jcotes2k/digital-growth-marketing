@@ -112,6 +112,15 @@ verify_jwt = false
 [functions.epayco-webhook]
 verify_jwt = false
 
+[functions.epayco-create-subscription]
+verify_jwt = false
+
+[functions.epayco-subscription-webhook]
+verify_jwt = false
+
+[functions.epayco-cancel-subscription]
+verify_jwt = false
+
 [edge_runtime]
 policy = "per_worker"
 inspector_port = 8083
