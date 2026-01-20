@@ -32,6 +32,7 @@ import EvergreenRecycler from "@/components/EvergreenRecycler";
 import PreViralTrendsMonitor from "@/components/PreViralTrendsMonitor";
 import RevenueAttribution from "@/components/RevenueAttribution";
 import AgencyDashboard from "@/components/agents/AgencyDashboard";
+import { PlatformDocumentationPDF } from "@/components/PlatformDocumentationPDF";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +40,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { useUserProgress } from "@/hooks/use-user-progress";
 import { useTrial } from "@/hooks/use-trial";
-import { Lock, CheckCircle2, Award, Crown, Zap, Star, LogOut, User, Clock, Gift, Timer, Shield } from "lucide-react";
+import { Lock, CheckCircle2, Award, Crown, Zap, Star, LogOut, User, Clock, Gift, Timer, Shield, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { SubscriptionPlan } from "@/types/user-progress";
@@ -351,12 +352,14 @@ const Index = () => {
 
                       {/* Admin link */}
                       {isAdmin && (
-                        <Button asChild size="sm" variant="outline" className="border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white">
-                          <Link to="/admin">
-                            <Shield className="h-4 w-4 mr-1" />
-                            Admin
-                          </Link>
-                        </Button>
+                        <>
+                          <Button asChild size="sm" variant="outline" className="border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white">
+                            <Link to="/admin">
+                              <Shield className="h-4 w-4 mr-1" />
+                              Admin
+                            </Link>
+                          </Button>
+                        </>
                       )}
                       
                       {/* Logout button */}
