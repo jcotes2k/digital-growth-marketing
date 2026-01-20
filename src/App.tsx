@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Register from "./pages/Register";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Checkout from "./pages/Checkout";
 import PaymentResponse from "./pages/PaymentResponse";
 import Affiliate from "./pages/Affiliate";
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment/response" element={<PaymentResponse />} />
           <Route path="/affiliate" element={<Affiliate />} />
