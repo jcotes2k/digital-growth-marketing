@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Shield, LayoutDashboard, Users, UserCheck, DollarSign, BarChart3, ArrowLeft, RefreshCw } from "lucide-react";
+import { Shield, LayoutDashboard, Users, UserCheck, DollarSign, BarChart3, ArrowLeft, RefreshCw, FileText } from "lucide-react";
 import { useAdmin } from "@/hooks/use-admin";
 import { AdminOverview } from "@/components/admin/AdminOverview";
 import { AdminAffiliates } from "@/components/admin/AdminAffiliates";
 import { AdminPayouts } from "@/components/admin/AdminPayouts";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 import { AdminUsageStats } from "@/components/admin/AdminUsageStats";
+import { PlatformDocumentationPDF } from "@/components/PlatformDocumentationPDF";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ const Admin = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto">
             <TabsTrigger value="overview" className="flex items-center gap-2 py-3">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">Resumen</span>
@@ -118,6 +119,10 @@ const Admin = () => {
             <TabsTrigger value="usage" className="flex items-center gap-2 py-3">
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Uso</span>
+            </TabsTrigger>
+            <TabsTrigger value="docs" className="flex items-center gap-2 py-3">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Docs</span>
             </TabsTrigger>
           </TabsList>
 
@@ -145,6 +150,18 @@ const Admin = () => {
 
           <TabsContent value="usage">
             <AdminUsageStats toolUsage={toolUsage} />
+          </TabsContent>
+
+          <TabsContent value="docs">
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-2">Documentación de la Plataforma</h2>
+                <p className="text-muted-foreground">
+                  Genera documentación profesional para inversores y clientes.
+                </p>
+              </div>
+              <PlatformDocumentationPDF />
+            </div>
           </TabsContent>
         </Tabs>
       </div>
