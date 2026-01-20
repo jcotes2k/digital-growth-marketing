@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { ForgotPasswordDialog } from "@/components/ForgotPasswordDialog";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -84,7 +85,10 @@ export default function Auth() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Contraseña</Label>
+                <ForgotPasswordDialog />
+              </div>
               <Input
                 id="password"
                 type="password"

@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, LogIn, UserPlus } from 'lucide-react';
+import { ForgotPasswordDialog } from '@/components/ForgotPasswordDialog';
 
 interface LoginFormData {
   email: string;
@@ -145,7 +146,10 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Contraseña</FormLabel>
+                        <div className="flex items-center justify-between">
+                          <FormLabel>Contraseña</FormLabel>
+                          <ForgotPasswordDialog />
+                        </div>
                         <FormControl>
                           <Input type="password" placeholder="••••••••" {...field} />
                         </FormControl>
