@@ -7,9 +7,9 @@ import type { UserRole } from '@/types/user-roles';
 // Define phase dependencies, order, and plan requirements
 export const PHASE_CONFIG: PhaseConfig[] = [
   // Core phases - FREE plan
-  { id: 'buyer-persona', name: 'Buyer Persona', description: 'Define tu cliente ideal', order: 1, requiredPlan: 'free' },
-  { id: 'business-canvas', name: 'Business Canvas', description: 'Modelo de negocio', order: 2, requires: ['buyer-persona'], requiredPlan: 'free' },
-  { id: 'product-roadmap', name: 'Product Roadmap', description: 'Planificación de producto', order: 3, requires: ['business-canvas'], requiredPlan: 'free' },
+  { id: 'business-canvas', name: 'Business Canvas', description: 'Modelo de negocio', order: 1, requiredPlan: 'free' },
+  { id: 'buyer-persona', name: 'Buyer Persona', description: 'Define tu cliente ideal', order: 2, requires: ['business-canvas'], requiredPlan: 'free' },
+  { id: 'product-roadmap', name: 'Product Roadmap', description: 'Planificación de producto', order: 3, requires: ['buyer-persona'], requiredPlan: 'free' },
   { id: 'content-strategy', name: 'Estrategia de Contenido', description: 'Define tu estrategia', order: 4, requires: ['product-roadmap'], requiredPlan: 'free' },
   { id: 'intelligent-content-strategy', name: 'Estrategia Inteligente', description: 'Estrategia con IA', order: 5, requires: ['content-strategy'], requiredPlan: 'free' },
   { id: 'analytics-insights', name: 'Analytics & Insights', description: 'Análisis profundo', order: 6, requires: ['intelligent-content-strategy'], requiredPlan: 'free' },
