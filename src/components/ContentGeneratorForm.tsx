@@ -106,6 +106,26 @@ export const ContentGeneratorForm = () => {
       });
 
       if (functionError) {
+        // Detectar errores específicos de rate limit o pago
+        const errorMessage = functionError.message || '';
+        const errorStatus = (functionError as any).status;
+        
+        if (errorMessage.includes('429') || errorStatus === 429) {
+          toast({
+            title: "Límite de solicitudes alcanzado",
+            description: "Por favor espera un momento e intenta nuevamente",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (errorMessage.includes('402') || errorStatus === 402) {
+          toast({
+            title: "Créditos agotados",
+            description: "Contacta al administrador para agregar más créditos",
+            variant: "destructive",
+          });
+          return;
+        }
         throw functionError;
       }
 
