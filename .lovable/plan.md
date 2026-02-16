@@ -1,62 +1,56 @@
 
-## Plan: Redisenar Product Roadmap - Vista de Bloques Editables
+
+## Plan: Redisenar Canvas de Estrategia de Contenido - Vista de Bloques Editables
 
 ### Resumen
-Aplicar el mismo patron del Business Canvas al Product Roadmap: reemplazar la navegacion secuencial por tabs con una grilla de bloques clickeables. Cada bloque muestra el contenido actual y al hacer clic se abre un modal para editar. Las herramientas de IA (Generar, Priorizar, Timeline, Metricas) pasan a la barra superior como botones.
+Aplicar el mismo patron usado en Business Canvas y Product Roadmap: reemplazar la navegacion secuencial (Paso 1 de 8) con una grilla interactiva de bloques clickeables. El usuario ve todo el canvas de un vistazo y al hacer clic en cualquier bloque se abre un modal para editar.
 
-### Experiencia del Usuario (Nuevo Flujo)
-
-1. El usuario entra al modulo Product Roadmap
-2. Ve todos los bloques en una grilla de 2 columnas con el contenido actual
-3. Hace clic en cualquier bloque para editar en un modal
-4. Las herramientas avanzadas (Generar IA, Priorizar, Timeline, Metricas) estan en botones superiores que abren modales
-5. En cualquier momento puede descargar el PDF
-
-### Estructura Visual
+### Estructura Visual Nueva
 
 ```text
 +------------------------------------------------------------------+
-| Product Roadmap Canvas                                           |
-| [Generar IA] [Priorizar] [Timeline] [Metricas] [Descargar PDF]  |
+| Canvas de Estrategia de Contenido        [Descargar PDF]         |
 +------------------------------------------------------------------+
-| [Para quien?]        | [Debe tener]                             |
-|  - Perfil usuario    |  - Funcionalidades esenciales             |
-|                      |  - Historias de usuario                   |
+| [Objetivo]         | [Temas de Contenido] | [Equipo]             |
 +------------------------------------------------------------------+
-| [Deberia tener]      | [Podria tener]                           |
-|  - Func. importantes |  - Func. futuras                         |
-|  - Objetivos corto   |  - Vision futuro                         |
+| [Canales]          | [Formato Contenido]  | [Presupuesto]        |
 +------------------------------------------------------------------+
-| [Backlog]            | [Alternativas]                           |
-|  - Ideas sin clasif. |  - Mercado                               |
-|  - Pendientes        |  - Competidores                          |
+| [Ritmo]            | [Tono de Contenido (col-span-2)]            |
 +------------------------------------------------------------------+
 ```
 
-### Detalle Tecnico
+### Cambios
 
-**Archivo: `src/components/ProductRoadmapForm.tsx`** (reescritura mayor)
+#### 1. Reescribir `ContentStrategyForm.tsx`
+- Eliminar el sistema secuencial de pasos con Progress bar y botones Anterior/Siguiente
+- Definir un array `contentBlocks` con los 8 bloques, cada uno mapeado a su icono y componente de formulario (GoalForm, ContentTopicsForm, TeamForm, ChannelsForm, ContentFormatForm, BudgetForm, RhythmForm, ContentToneForm)
+- Renderizar una grilla de 3 columnas con Cards clickeables que muestran datos en tiempo real via `form.watch()`
+- El bloque "Tono de Contenido" ocupa 2 columnas (como en la vista previa actual) y muestra los 5 sub-campos
+- El bloque "Canales" muestra badges con los canales seleccionados
+- Estado `editingBlock: string | null` para abrir el modal de edicion con el sub-formulario correspondiente
+- Integrar logica de PDF (html2canvas + jsPDF) directamente con boton en la barra superior
+- Contenido vacio muestra "No especificado" en gris
 
-- Eliminar el sistema de Tabs, Progress bar, y navegacion Anterior/Siguiente
-- Definir un array `roadmapBlocks` con los 6 bloques de datos (Para quien, Debe tener, Deberia tener, Podria tener, Backlog, Alternativas), cada uno con sus campos y el componente de formulario asociado
-- Renderizar una grilla de Cards clickeables con `form.watch()` para vista previa en tiempo real
-- Estado `editingBlock: string | null` para controlar el modal de edicion
-- Las 4 herramientas avanzadas (Generar IA, Priorizar, Timeline, Metricas) se muestran como botones en la barra superior que abren Dialogs independientes
-- Integrar la logica de PDF usando html2canvas + jsPDF sobre el `#roadmap-grid`
-- Mantener el `refreshKey` para las herramientas de IA
+#### 2. `ContentStrategyPreview.tsx` se mantiene sin cambios
+- Ya no se navega a ella como vista separada, pero se conserva por si se necesita internamente
 
-**Archivo: `src/components/ProductRoadmapPreview.tsx`**
+### Experiencia del Usuario
 
-- Sin cambios necesarios (la logica de PDF se integrara directamente en el componente principal)
+1. Entra al modulo y ve los 8 bloques en una grilla
+2. Cada bloque muestra el titulo con icono y el contenido actual
+3. Hace clic en un bloque -> se abre un modal con el formulario de edicion
+4. Cierra el modal -> el bloque se actualiza al instante
+5. En cualquier momento puede descargar el PDF
 
 ### Archivos a Modificar
 
 | Archivo | Accion | Detalle |
 |---------|--------|---------|
-| `src/components/ProductRoadmapForm.tsx` | Reescribir | Cambiar de tabs a grilla de bloques con modales |
+| `src/components/ContentStrategyForm.tsx` | Reescribir | Cambiar de pasos secuenciales a grilla de bloques con modales |
 
 ### Lo que se conserva sin cambios
-- Todos los sub-formularios (`roadmap-forms/*.tsx`)
-- Tipos (`product-roadmap.ts`, `roadmap-feature.ts`)
-- Componentes de IA: RoadmapFeatureGenerator, RoadmapPrioritizer, RoadmapTimeline, RoadmapMetricsIntegration
-- ProductRoadmapPreview
+- Todos los sub-formularios (`content-forms/*.tsx`)
+- Tipos (`content-strategy.ts`)
+- `ContentStrategyPreview.tsx`
+- Schema de validacion zod
+
