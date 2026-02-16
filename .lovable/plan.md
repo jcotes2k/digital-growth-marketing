@@ -1,82 +1,68 @@
 
-## Plan: Corregir el Generador de Contenido con IA
+## Plan: Redisenar Business Canvas - Vista de Bloques Editables
 
-### Diagnóstico
-He probado la función edge `content-generator` directamente y **funciona correctamente**, devolviendo 5 variantes de contenido. El problema puede estar en:
-1. **Modelo de IA desactualizado**: Usa `google/gemini-2.5-flash` cuando el modelo recomendado actual es `google/gemini-3-flash-preview`
-2. **Falta de manejo de errores específicos**: No se muestran mensajes claros para errores 429 (rate limit) o 402 (pago requerido) en el frontend
-3. **Headers CORS incompletos**: Faltan algunos headers requeridos para Supabase
+### Resumen
+Reemplazar la navegacion secuencial por tabs con una vista de bloques tipo grid (similar a la Vista Previa actual). Cada bloque muestra el contenido actual y al hacer clic se expande para editar. El usuario ve todo el canvas de un vistazo y puede descargar PDF en cualquier momento.
 
----
+### Cambios Principales
 
-### Cambios Propuestos
+#### 1. Reescribir `BusinessCanvasForm.tsx`
+- Eliminar el sistema de Tabs secuencial con menu horizontal
+- Mostrar directamente una grilla de 3 columnas con todos los 11 bloques del canvas
+- Cada bloque es una Card clickeable que muestra el valor actual (o "No especificado")
+- Al hacer clic en un bloque, se abre un Dialog/modal con el formulario correspondiente (ProblemaForm, SolucionForm, etc.)
+- Mantener el boton "Descargar PDF" siempre visible en la parte superior
+- Mantener los botones de "Templates" y "Generar con IA"
+- Agregar acceso a "Validacion" y "Escenarios" como botones secundarios (ya no son tabs)
 
-#### 1. Actualizar Edge Function `content-generator`
+#### 2. Simplificar `BusinessCanvasPreview.tsx`
+- Ya no sera necesario como componente separado para la tab "Vista Previa", porque la vista principal ES la vista previa
+- La logica de generacion de PDF se movera al componente principal o se reutilizara
 
-| Cambio | Detalle |
-|--------|---------|
-| Modelo de IA | Cambiar de `google/gemini-2.5-flash` a `google/gemini-3-flash-preview` |
-| Headers CORS | Agregar headers faltantes para compatibilidad con Supabase |
-| Logging | Agregar logs más detallados para debugging |
+### Experiencia del Usuario (Nuevo Flujo)
 
-**Archivo:** `supabase/functions/content-generator/index.ts`
+1. El usuario entra al modulo Business Canvas
+2. Ve inmediatamente todos los 11 bloques en una grilla de 3 columnas
+3. Cada bloque muestra el titulo y el contenido actual
+4. Hace clic en cualquier bloque -> se abre un modal con los campos de edicion
+5. Completa/edita y cierra el modal -> el bloque se actualiza al instante
+6. En cualquier momento puede descargar el PDF con el boton superior
+7. Accede a Validacion IA y Escenarios desde botones en la barra superior
 
-```typescript
-// Actualizar corsHeaders
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-};
+### Detalle Tecnico
 
-// Cambiar modelo
-model: "google/gemini-3-flash-preview",
+**Archivo: `src/components/BusinessCanvasForm.tsx`** (reescritura mayor)
+
+```text
+Estructura nueva:
++--------------------------------------------------+
+| Titulo + [Templates] [IA] [Validacion] [Escenarios] [PDF] |
++--------------------------------------------------+
+| [Problema]  [Solucion]  [Propuesta Valor]        |
+| [Ventaja]   [Segmentos] [Indicadores]            |
+| [Canales]   [Costes]    [Sostenibilidad]         |
+| [Equipo]    [Impacto]                            |
++--------------------------------------------------+
 ```
 
----
+- Estado `editingBlock: string | null` controla cual bloque esta abierto en modal
+- Cada Card muestra datos del `form.watch()` en tiempo real
+- El Dialog renderiza el sub-formulario correspondiente (ProblemaForm, SolucionForm, etc.)
+- La grilla completa tiene `id="canvas-preview"` para la generacion de PDF
+- Se conserva toda la logica de carga de datos, templates, IA, escenarios y comparacion
 
-#### 2. Mejorar Manejo de Errores en Frontend
-
-**Archivo:** `src/components/ContentGeneratorForm.tsx`
-
-Agregar manejo específico de errores para mostrar mensajes claros al usuario:
-
-```typescript
-if (functionError) {
-  // Detectar errores específicos
-  if (functionError.message?.includes('429') || functionError.status === 429) {
-    toast({
-      title: "Límite de solicitudes alcanzado",
-      description: "Por favor espera un momento e intenta nuevamente",
-      variant: "destructive",
-    });
-    return;
-  }
-  if (functionError.message?.includes('402') || functionError.status === 402) {
-    toast({
-      title: "Créditos agotados",
-      description: "Contacta al administrador para agregar más créditos",
-      variant: "destructive",
-    });
-    return;
-  }
-  throw functionError;
-}
-```
-
----
+**Archivo: `src/components/BusinessCanvasPreview.tsx`**
+- Se mantiene pero solo se usa internamente para el PDF (o se integra la logica de PDF directamente en el form principal)
 
 ### Archivos a Modificar
 
-| Archivo | Acción | Cambios |
+| Archivo | Accion | Detalle |
 |---------|--------|---------|
-| `supabase/functions/content-generator/index.ts` | Modificar | Actualizar modelo de IA y headers CORS |
-| `src/components/ContentGeneratorForm.tsx` | Modificar | Mejorar manejo de errores con mensajes específicos |
+| `src/components/BusinessCanvasForm.tsx` | Reescribir | Cambiar de tabs a grilla de bloques con modales de edicion |
+| `src/components/BusinessCanvasPreview.tsx` | Ajustar | Reutilizar logica de PDF o integrarla en el componente principal |
 
----
-
-### Validaciones Post-Implementación
-
-1. Probar generar contenido con diferentes tipos (post, email, blog)
-2. Verificar que las variantes se muestran correctamente
-3. Confirmar que el contenido se guarda en el historial
-4. Verificar mensajes de error claros ante rate limits
+### Lo que se conserva sin cambios
+- Todos los sub-formularios (`canvas-forms/*.tsx`)
+- Tipos (`business-canvas.ts`)
+- Componentes de IA, Templates, Validacion, Escenarios, Comparacion
+- Logica de carga de datos de usuario (buyer personas, company info)
