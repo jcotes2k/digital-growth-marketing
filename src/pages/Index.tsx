@@ -148,6 +148,7 @@ const PhaseCard = ({ phaseId, title, description, isUnlocked, isCompleted, onCli
 
 const Index = () => {
   const [currentPhase, setCurrentPhase] = useState<Phase>('menu');
+  const [selectedAgentId, setSelectedAgentId] = useState<string | undefined>(undefined);
   const [trialCode, setTrialCode] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -294,7 +295,7 @@ const Index = () => {
       case 'revenue-attribution':
         return <RevenueAttribution />;
       case 'ai-agency':
-        return <AgencyDashboard isUnlocked={isPhaseUnlocked('ai-agency')} onBack={() => setCurrentPhase('menu')} />;
+        return <AgencyDashboard isUnlocked={isPhaseUnlocked('ai-agency')} initialAgentId={selectedAgentId} onBack={() => { setCurrentPhase('menu'); setSelectedAgentId(undefined); }} />;
       default:
         const completionPercentage = getCompletionPercentage();
 
@@ -524,7 +525,7 @@ const Index = () => {
                     <Star className="h-5 w-5 text-amber-500" />
                     Agentes IA Especializados
                     <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white"><Star className="h-3 w-3 mr-1" />GOLD</Badge>
-                    <Badge variant="outline" className="border-amber-500/50 text-amber-600">16+ Especialistas 24/7</Badge>
+                    <Badge variant="outline" className="border-amber-500/50 text-amber-600">17+ Especialistas 24/7</Badge>
                   </h3>
                   {AGENT_TEAMS.map((team) => {
                     const teamAgents = AI_AGENTS.filter(a => a.team === team.id);
@@ -557,6 +558,7 @@ const Index = () => {
                               fuchsia: { bg: 'bg-fuchsia-500/10', text: 'text-fuchsia-500', border: 'border-fuchsia-500/30' },
                               red: { bg: 'bg-red-500/10', text: 'text-red-500', border: 'border-red-500/30' },
                               slate: { bg: 'bg-slate-500/10', text: 'text-slate-500', border: 'border-slate-500/30' },
+                              sky: { bg: 'bg-sky-500/10', text: 'text-sky-500', border: 'border-sky-500/30' },
                             };
                             const colors = colorMap[agent.color] || colorMap.amber;
                             const canClick = agencyUnlocked && (!agent.isAnnualOnly);
@@ -573,7 +575,7 @@ const Index = () => {
                                         ? 'opacity-40 cursor-not-allowed'
                                         : 'opacity-60'
                                 }`}
-                                onClick={canClick ? () => handlePhaseClick('ai-agency') : undefined}
+                                onClick={canClick ? () => { setSelectedAgentId(agent.id); handlePhaseClick('ai-agency'); } : undefined}
                               >
                                 <CardContent className="p-3 flex items-start gap-3">
                                   <div className={`p-2 rounded-lg ${colors.bg} shrink-0`}>

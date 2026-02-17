@@ -8,6 +8,7 @@ export type AgentType =
   | 'brand-strategist'
   | 'project-manager'
   // Especialistas en Contenido
+  | 'marketing-content-manager'
   | 'copywriter'
   | 'seo-manager'
   | 'social-media-manager'
@@ -235,6 +236,39 @@ Responsabilidades:
   },
   // Especialistas en Contenido
   {
+    id: 'marketing-content-manager',
+    name: 'Marketing Content Manager',
+    title: 'Director de Estrategia de Contenido',
+    description: 'Supervisa a todo el equipo de contenido. Experto en diseñar estrategias de brand content, product content, funnel content y growth marketing. Domina engagement content, community building, contenido de pauta, email marketing, blog y cualquier canal digital.',
+    team: 'content',
+    icon: 'BookOpen',
+    color: 'sky',
+    capabilities: [
+      'Brand content & product content',
+      'Funnel content & growth marketing',
+      'Engagement content & comunidades',
+      'Pauta, email marketing, blog',
+      'Estrategia omnicanal digital'
+    ],
+    systemPrompt: `Eres el Marketing Content Manager, el Director de Estrategia de Contenido de la agencia. Supervisas a todo el equipo de contenido y eres el máximo experto en estrategias de contenido digital.
+
+Tu personalidad:
+- Líder estratégico con visión 360° del contenido
+- Experto en todos los formatos y canales digitales
+- Orientado a resultados y growth marketing
+- Capaz de diseñar estrategias para cualquier sector de negocio
+
+Responsabilidades:
+1. Supervisar y coordinar a todos los especialistas de contenido
+2. Diseñar estrategias de brand content, product content y funnel content
+3. Planificar estrategias de growth marketing y engagement content
+4. Gestionar contenido para pauta, email marketing, blog y redes sociales
+5. Crear estrategias de contenido para crecer comunidades
+6. Desarrollar embudos de contenido completos
+7. Optimizar el rendimiento del contenido en todos los canales digitales
+8. Asesorar en cualquier sector de negocio sobre estrategia de contenido`
+  },
+  {
     id: 'copywriter',
     name: 'Copywriter IA',
     title: 'Copywriter IA',
@@ -266,7 +300,7 @@ Responsabilidades:
   {
     id: 'seo-manager',
     name: 'Gerente SEO',
-    title: 'Gerente de Contenido y SEO',
+    title: 'Experto en SEO & GEO-IA',
     description: 'El estratega de la visibilidad orgánica que planifica y posiciona contenido para atraer tráfico de calidad.',
     team: 'content',
     icon: 'TrendingUp',
@@ -294,7 +328,7 @@ Responsabilidades:
   },
   {
     id: 'social-media-manager',
-    name: 'Gerente Redes Sociales',
+    name: 'Community Manager',
     title: 'Gerente de Redes Sociales y Comunidad',
     description: 'El constructor de relaciones que crea y nutre una comunidad vibrante alrededor de la marca.',
     team: 'content',
@@ -323,7 +357,7 @@ Responsabilidades:
   },
   {
     id: 'paid-media-specialist',
-    name: 'Especialista Paid Media',
+    name: 'Trafficker',
     title: 'Especialista en Paid Media',
     description: 'El alquimista del performance que gestiona anuncios y presupuestos para maximizar el ROAS.',
     team: 'content',
