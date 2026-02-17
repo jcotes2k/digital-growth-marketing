@@ -32,6 +32,8 @@ import EvergreenRecycler from "@/components/EvergreenRecycler";
 import PreViralTrendsMonitor from "@/components/PreViralTrendsMonitor";
 import RevenueAttribution from "@/components/RevenueAttribution";
 import AgencyDashboard from "@/components/agents/AgencyDashboard";
+import { AI_AGENTS, AGENT_TEAMS } from "@/types/ai-agents";
+import * as Icons from "lucide-react";
 import { PlatformDocumentationPDF } from "@/components/PlatformDocumentationPDF";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -522,61 +524,84 @@ const Index = () => {
                     <Star className="h-5 w-5 text-amber-500" />
                     Agentes IA Especializados
                     <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white"><Star className="h-3 w-3 mr-1" />GOLD</Badge>
+                    <Badge variant="outline" className="border-amber-500/50 text-amber-600">16+ Especialistas 24/7</Badge>
                   </h3>
-                  {(() => {
-                    const isUnlocked = isPhaseUnlocked('ai-agency');
-                    const isCompleted = isPhaseCompleted('ai-agency');
-                    const includedInPlan = isPhaseIncludedInPlan('ai-agency');
-                    const isLockedByProgress = includedInPlan && !isUnlocked && !isCompleted;
-                    const isLockedByPlan = !includedInPlan;
-                    
+                  {AGENT_TEAMS.map((team) => {
+                    const teamAgents = AI_AGENTS.filter(a => a.team === team.id);
+                    const agencyUnlocked = isPhaseUnlocked('ai-agency');
+                    const agencyIncluded = isPhaseIncludedInPlan('ai-agency');
+                    const agencyCompleted = isPhaseCompleted('ai-agency');
+                    const lockedByProgress = agencyIncluded && !agencyUnlocked && !agencyCompleted;
+                    const lockedByPlan = !agencyIncluded;
+
                     return (
-                      <Card 
-                        className={`transition-all border-amber-500/30 bg-gradient-to-br from-amber-500/5 to-yellow-500/5 ${
-                          isCompleted 
-                            ? 'border-green-500 border-2 cursor-pointer hover:shadow-lg'
-                            : isUnlocked 
-                              ? 'cursor-pointer hover:shadow-lg'
-                              : isLockedByProgress
-                                ? 'border-dashed border-2 border-amber-500/50 opacity-80'
-                                : 'opacity-40 cursor-not-allowed'
-                        }`}
-                        onClick={isUnlocked ? () => handlePhaseClick('ai-agency') : undefined}
-                      >
-                        <CardHeader>
-                          <div className="flex items-center justify-between">
-                            <CardTitle className="flex items-center gap-2">
-                              {isCompleted ? (
-                                <CheckCircle2 className="h-6 w-6 text-green-500" />
-                              ) : isUnlocked ? (
-                                <Star className="h-6 w-6 text-amber-500" />
-                              ) : isLockedByProgress ? (
-                                <Clock className="h-6 w-6 text-amber-500" />
-                              ) : (
-                                <Lock className="h-6 w-6 text-muted-foreground" />
-                              )}
-                              Agencia de Marketing IA
-                            </CardTitle>
-                            <div className="flex gap-2">
-                              {isLockedByProgress && (
-                                <Badge variant="outline" className="border-amber-500 text-amber-600">Próximamente</Badge>
-                              )}
-                              {isLockedByPlan && (
-                                <Badge variant="destructive">Upgrade</Badge>
-                              )}
-                              <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white">16+ Especialistas</Badge>
-                            </div>
-                          </div>
-                          <CardDescription>
-                            {isLockedByProgress 
-                              ? "Completa las fases anteriores para desbloquear tu equipo de IA"
-                              : "Tu equipo virtual de especialistas trabajando 24/7: CEO Digital, Director Estratégico, Copywriter, SEO Manager, Paid Media, Growth Optimizer, CRM Expert, Director Creativo y más."
-                            }
-                          </CardDescription>
-                        </CardHeader>
-                      </Card>
+                      <div key={team.id} className="mb-4">
+                        <h4 className="text-sm font-medium text-muted-foreground mb-2">{team.name}</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                          {teamAgents.map((agent) => {
+                            const IconComp = (Icons as any)[agent.icon] || Icons.Bot;
+                            const colorMap: Record<string, { bg: string; text: string; border: string }> = {
+                              amber: { bg: 'bg-amber-500/10', text: 'text-amber-500', border: 'border-amber-500/30' },
+                              blue: { bg: 'bg-blue-500/10', text: 'text-blue-500', border: 'border-blue-500/30' },
+                              purple: { bg: 'bg-purple-500/10', text: 'text-purple-500', border: 'border-purple-500/30' },
+                              pink: { bg: 'bg-pink-500/10', text: 'text-pink-500', border: 'border-pink-500/30' },
+                              green: { bg: 'bg-green-500/10', text: 'text-green-500', border: 'border-green-500/30' },
+                              orange: { bg: 'bg-orange-500/10', text: 'text-orange-500', border: 'border-orange-500/30' },
+                              emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-500', border: 'border-emerald-500/30' },
+                              cyan: { bg: 'bg-cyan-500/10', text: 'text-cyan-500', border: 'border-cyan-500/30' },
+                              yellow: { bg: 'bg-yellow-500/10', text: 'text-yellow-500', border: 'border-yellow-500/30' },
+                              violet: { bg: 'bg-violet-500/10', text: 'text-violet-500', border: 'border-violet-500/30' },
+                              indigo: { bg: 'bg-indigo-500/10', text: 'text-indigo-500', border: 'border-indigo-500/30' },
+                              teal: { bg: 'bg-teal-500/10', text: 'text-teal-500', border: 'border-teal-500/30' },
+                              rose: { bg: 'bg-rose-500/10', text: 'text-rose-500', border: 'border-rose-500/30' },
+                              fuchsia: { bg: 'bg-fuchsia-500/10', text: 'text-fuchsia-500', border: 'border-fuchsia-500/30' },
+                              red: { bg: 'bg-red-500/10', text: 'text-red-500', border: 'border-red-500/30' },
+                              slate: { bg: 'bg-slate-500/10', text: 'text-slate-500', border: 'border-slate-500/30' },
+                            };
+                            const colors = colorMap[agent.color] || colorMap.amber;
+                            const canClick = agencyUnlocked && (!agent.isAnnualOnly);
+
+                            return (
+                              <Card
+                                key={agent.id}
+                                className={`transition-all ${colors.border} border ${
+                                  canClick
+                                    ? 'cursor-pointer hover:shadow-md hover:scale-[1.02]'
+                                    : lockedByProgress
+                                      ? 'border-dashed opacity-80'
+                                      : lockedByPlan
+                                        ? 'opacity-40 cursor-not-allowed'
+                                        : 'opacity-60'
+                                }`}
+                                onClick={canClick ? () => handlePhaseClick('ai-agency') : undefined}
+                              >
+                                <CardContent className="p-3 flex items-start gap-3">
+                                  <div className={`p-2 rounded-lg ${colors.bg} shrink-0`}>
+                                    <IconComp className={`h-5 w-5 ${colors.text}`} />
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="font-semibold text-sm truncate">{agent.name}</p>
+                                    <p className="text-xs text-muted-foreground line-clamp-1">{agent.title}</p>
+                                  </div>
+                                  <div className="flex flex-col gap-1 shrink-0">
+                                    {agent.isAnnualOnly && (
+                                      <Badge className="text-[10px] px-1.5 py-0 bg-gradient-to-r from-amber-500 to-yellow-500 text-white">Anual</Badge>
+                                    )}
+                                    {lockedByPlan && (
+                                      <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Upgrade</Badge>
+                                    )}
+                                    {lockedByProgress && !lockedByPlan && (
+                                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-500 text-amber-600">Pronto</Badge>
+                                    )}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
+                        </div>
+                      </div>
                     );
-                  })()}
+                  })}
                 </div>
               </div>
             </div>
