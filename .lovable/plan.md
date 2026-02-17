@@ -1,56 +1,65 @@
 
 
-## Plan: Redisenar Canvas de Estrategia de Contenido - Vista de Bloques Editables
+## Plan: Mostrar Bloques de Agentes IA Especializados en el Home
 
 ### Resumen
-Aplicar el mismo patron usado en Business Canvas y Product Roadmap: reemplazar la navegacion secuencial (Paso 1 de 8) con una grilla interactiva de bloques clickeables. El usuario ve todo el canvas de un vistazo y al hacer clic en cualquier bloque se abre un modal para editar.
-
-### Estructura Visual Nueva
-
-```text
-+------------------------------------------------------------------+
-| Canvas de Estrategia de Contenido        [Descargar PDF]         |
-+------------------------------------------------------------------+
-| [Objetivo]         | [Temas de Contenido] | [Equipo]             |
-+------------------------------------------------------------------+
-| [Canales]          | [Formato Contenido]  | [Presupuesto]        |
-+------------------------------------------------------------------+
-| [Ritmo]            | [Tono de Contenido (col-span-2)]            |
-+------------------------------------------------------------------+
-```
-
-### Cambios
-
-#### 1. Reescribir `ContentStrategyForm.tsx`
-- Eliminar el sistema secuencial de pasos con Progress bar y botones Anterior/Siguiente
-- Definir un array `contentBlocks` con los 8 bloques, cada uno mapeado a su icono y componente de formulario (GoalForm, ContentTopicsForm, TeamForm, ChannelsForm, ContentFormatForm, BudgetForm, RhythmForm, ContentToneForm)
-- Renderizar una grilla de 3 columnas con Cards clickeables que muestran datos en tiempo real via `form.watch()`
-- El bloque "Tono de Contenido" ocupa 2 columnas (como en la vista previa actual) y muestra los 5 sub-campos
-- El bloque "Canales" muestra badges con los canales seleccionados
-- Estado `editingBlock: string | null` para abrir el modal de edicion con el sub-formulario correspondiente
-- Integrar logica de PDF (html2canvas + jsPDF) directamente con boton en la barra superior
-- Contenido vacio muestra "No especificado" en gris
-
-#### 2. `ContentStrategyPreview.tsx` se mantiene sin cambios
-- Ya no se navega a ella como vista separada, pero se conserva por si se necesita internamente
+Reemplazar la tarjeta unica "Agencia de Marketing IA" en la seccion GOLD del Home con una grilla de bloques individuales que muestre cada uno de los 16+ agentes IA con su nombre, rol, icono y color. El cliente podra ver de un vistazo todo el equipo de especialistas que obtiene con el plan GOLD.
 
 ### Experiencia del Usuario
 
-1. Entra al modulo y ve los 8 bloques en una grilla
-2. Cada bloque muestra el titulo con icono y el contenido actual
-3. Hace clic en un bloque -> se abre un modal con el formulario de edicion
-4. Cierra el modal -> el bloque se actualiza al instante
-5. En cualquier momento puede descargar el PDF
+1. En el Home, la seccion "Agentes IA Especializados" mostrara los 4 equipos con sus agentes
+2. Cada agente se muestra como una Card compacta con su icono, nombre y titulo/rol
+3. Los agentes bloqueados (plan anual) tendran un badge especial
+4. Al hacer clic en un agente (si tiene plan GOLD), se navega a la Agencia y abre el chat con ese agente
+5. Si no tiene plan GOLD, se muestra como bloqueado con badge "Upgrade" y "GOLD"
+
+### Estructura Visual
+
+```text
++------------------------------------------------------------------+
+| Agentes IA Especializados                         [GOLD badge]   |
++------------------------------------------------------------------+
+| Equipo Central y Estrategico                                     |
+| [CEO Digital] [Dir. Estrategico] [Investigador] [Estratega Marca]|
+| [Gerente Proyectos]                                              |
++------------------------------------------------------------------+
+| Especialistas en Contenido y Rendimiento                         |
+| [Copywriter] [Gerente SEO] [Social Media] [Paid Media]          |
+| [Growth Optimizer] [Analista Datos]                              |
++------------------------------------------------------------------+
+| Tecnologia, Creatividad y Cliente                                |
+| [Experto CRM] [Exito Cliente] [Dir. Creativo] [Multimedia]      |
+| [Desarrollador Web]                                              |
++------------------------------------------------------------------+
+| Consultor Exclusivo (Plan Anual)                                 |
+| [Consultor Business - Plan Anual badge]                          |
++------------------------------------------------------------------+
+```
+
+### Detalle Tecnico
+
+**Archivo: `src/pages/Index.tsx`** (modificacion en la seccion AI Agents - GOLD, lineas 519-580)
+
+- Eliminar la Card unica "Agencia de Marketing IA"
+- Importar `AI_AGENTS`, `AGENT_TEAMS` desde `@/types/ai-agents`
+- Importar iconos dinamicos desde `lucide-react` (usando el patron ya existente en AgentCard.tsx con `import * as Icons`)
+- Iterar sobre `AGENT_TEAMS` para mostrar cada equipo como subseccion
+- Dentro de cada equipo, mostrar los agentes en una grilla de 4 columnas (responsive: 2 en movil, 3 en tablet, 4 en desktop)
+- Cada Card de agente muestra: icono con color, nombre, titulo/rol
+- Usar el mismo mapa de colores que ya existe en `AgentCard.tsx` (colorClasses)
+- Si el usuario tiene plan GOLD y la fase esta desbloqueada: clickeable, navega al agente
+- Si no tiene plan GOLD: opacidad reducida con badges "Upgrade" y "GOLD"
+- Los agentes `isAnnualOnly` muestran badge "Plan Anual"
 
 ### Archivos a Modificar
 
 | Archivo | Accion | Detalle |
 |---------|--------|---------|
-| `src/components/ContentStrategyForm.tsx` | Reescribir | Cambiar de pasos secuenciales a grilla de bloques con modales |
+| `src/pages/Index.tsx` | Modificar | Reemplazar la Card unica por grilla de agentes individuales agrupados por equipo |
 
 ### Lo que se conserva sin cambios
-- Todos los sub-formularios (`content-forms/*.tsx`)
-- Tipos (`content-strategy.ts`)
-- `ContentStrategyPreview.tsx`
-- Schema de validacion zod
+- `src/types/ai-agents.ts` (datos de agentes y equipos)
+- `src/components/agents/AgentCard.tsx` (se usa dentro de AgencyDashboard, no en el Home)
+- `src/components/agents/AgencyDashboard.tsx` (se abre al hacer clic en un agente)
+- Toda la logica de desbloqueo y planes existente en Index.tsx
 
