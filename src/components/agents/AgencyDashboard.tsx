@@ -1,29 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AI_AGENTS, AGENT_TEAMS, AIAgent, AgentTeam } from "@/types/ai-agents";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { AI_AGENTS, AGENT_TEAMS, AIAgent, AgentTeam, getAgentById } from "@/types/ai-agents";
 import AgentCard from "./AgentCard";
 import AgentChatInterface from "./AgentChatInterface";
 import { Building2, Users, Zap, Crown, ArrowLeft } from "lucide-react";
+import * as Icons from "lucide-react";
 
 interface AgencyDashboardProps {
   isUnlocked: boolean;
   isAnnualPlan?: boolean;
   businessContext?: Record<string, any>;
   onBack: () => void;
+  initialAgentId?: string;
 }
 
-const AgencyDashboard = ({ isUnlocked, isAnnualPlan = false, businessContext, onBack }: AgencyDashboardProps) => {
+const AgencyDashboard = ({ isUnlocked, isAnnualPlan = false, businessContext, onBack, initialAgentId }: AgencyDashboardProps) => {
   const [selectedAgent, setSelectedAgent] = useState<AIAgent | null>(null);
   const [activeTeam, setActiveTeam] = useState<AgentTeam>('strategic');
+
+  useEffect(() => {
+    if (initialAgentId) {
+      const agent = getAgentById(initialAgentId as any);
+      if (agent) {
+        setSelectedAgent(agent);
+      }
+    }
+  }, [initialAgentId]);
 
   const teamIcons: Record<AgentTeam, React.ReactNode> = {
     strategic: <Crown className="h-4 w-4" />,
     content: <Zap className="h-4 w-4" />,
     technology: <Building2 className="h-4 w-4" />,
     bonus: <Users className="h-4 w-4" />
+  };
+
+  const colorMap: Record<string, { bg: string; text: string }> = {
+    amber: { bg: 'bg-amber-500/10', text: 'text-amber-500' },
+    blue: { bg: 'bg-blue-500/10', text: 'text-blue-500' },
+    purple: { bg: 'bg-purple-500/10', text: 'text-purple-500' },
+    pink: { bg: 'bg-pink-500/10', text: 'text-pink-500' },
+    green: { bg: 'bg-green-500/10', text: 'text-green-500' },
+    orange: { bg: 'bg-orange-500/10', text: 'text-orange-500' },
+    emerald: { bg: 'bg-emerald-500/10', text: 'text-emerald-500' },
+    cyan: { bg: 'bg-cyan-500/10', text: 'text-cyan-500' },
+    yellow: { bg: 'bg-yellow-500/10', text: 'text-yellow-500' },
+    violet: { bg: 'bg-violet-500/10', text: 'text-violet-500' },
+    indigo: { bg: 'bg-indigo-500/10', text: 'text-indigo-500' },
+    teal: { bg: 'bg-teal-500/10', text: 'text-teal-500' },
+    rose: { bg: 'bg-rose-500/10', text: 'text-rose-500' },
+    fuchsia: { bg: 'bg-fuchsia-500/10', text: 'text-fuchsia-500' },
+    red: { bg: 'bg-red-500/10', text: 'text-red-500' },
+    slate: { bg: 'bg-slate-500/10', text: 'text-slate-500' },
+    sky: { bg: 'bg-sky-500/10', text: 'text-sky-500' },
   };
 
   const getTeamAgents = (team: AgentTeam) => {
@@ -38,11 +71,53 @@ const AgencyDashboard = ({ isUnlocked, isAnnualPlan = false, businessContext, on
 
   if (selectedAgent) {
     return (
-      <AgentChatInterface
-        agent={selectedAgent}
-        onBack={() => setSelectedAgent(null)}
-        businessContext={businessContext}
-      />
+      <div className="space-y-4">
+        {/* Interactive agent bar */}
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => setSelectedAgent(null)} className="shrink-0">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <ScrollArea className="flex-1">
+            <div className="flex items-center gap-2 pb-2">
+              {AI_AGENTS.filter(a => !a.isAnnualOnly || isAnnualPlan).map((agent) => {
+                const IconComp = (Icons as any)[agent.icon] || Icons.Bot;
+                const colors = colorMap[agent.color] || colorMap.amber;
+                const isActive = agent.id === selectedAgent.id;
+
+                return (
+                  <TooltipProvider key={agent.id} delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => setSelectedAgent(agent)}
+                          className={`p-2 rounded-lg transition-all shrink-0 ${
+                            isActive
+                              ? `${colors.bg} ring-2 ring-offset-1 ring-current ${colors.text} scale-110`
+                              : `hover:${colors.bg} opacity-60 hover:opacity-100`
+                          }`}
+                        >
+                          <IconComp className={`h-5 w-5 ${colors.text}`} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="text-xs">
+                        <p className="font-semibold">{agent.name}</p>
+                        <p className="text-muted-foreground">{agent.title}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
+
+        <AgentChatInterface
+          agent={selectedAgent}
+          onBack={() => setSelectedAgent(null)}
+          businessContext={businessContext}
+        />
+      </div>
     );
   }
 
@@ -57,7 +132,7 @@ const AgencyDashboard = ({ isUnlocked, isAnnualPlan = false, businessContext, on
             Agencia de Marketing IA
           </h2>
           <p className="text-muted-foreground">
-            Tu equipo de 16+ especialistas virtuales trabajando 24/7
+            Tu equipo de 17+ especialistas virtuales trabajando 24/7
           </p>
         </div>
         <Badge className="ml-auto bg-gradient-to-r from-amber-500 to-yellow-500 text-white">
@@ -78,7 +153,7 @@ const AgencyDashboard = ({ isUnlocked, isAnnualPlan = false, businessContext, on
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 rounded-lg bg-background/50">
-              <div className="text-3xl font-bold text-amber-500">16+</div>
+              <div className="text-3xl font-bold text-amber-500">17+</div>
               <div className="text-sm text-muted-foreground">Especialistas IA</div>
             </div>
             <div className="text-center p-4 rounded-lg bg-background/50">
