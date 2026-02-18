@@ -19,9 +19,9 @@ interface EPaycoSubscriptionFormProps {
 }
 
 const PLAN_DETAILS = {
-  pro: { name: 'Plan Pro', price: 19, features: ['Todas las herramientas básicas', 'Soporte por email'] },
-  premium: { name: 'Plan Premium', price: 39, features: ['Todo de Pro', 'Herramientas avanzadas', 'Soporte prioritario'] },
-  gold: { name: 'Plan Gold', price: 49, features: ['Todo de Premium', 'Acceso ilimitado', 'Soporte 24/7'] },
+  pro: { name: 'Plan Pro', price: 39, features: ['Todas las herramientas básicas', 'Soporte por email'] },
+  premium: { name: 'Plan Premium', price: 69, features: ['Todo de Pro', 'Herramientas avanzadas', 'Soporte prioritario'] },
+  gold: { name: 'Plan Gold', price: 89, features: ['Todo de Premium', 'Acceso ilimitado', 'Soporte 24/7'] },
 };
 
 const DOC_TYPES = [
