@@ -412,9 +412,9 @@ export const PlatformDocumentationPDF = () => {
       // Tabla de precios
       const plans = [
         { name: 'Free', price: '$0', features: 'Fases 1-6 (Core)', users: '1' },
-        { name: 'Pro', price: '$19/mes', features: 'Fases 1-9 + PDF Export', users: '1' },
-        { name: 'Premium', price: '$39/mes', features: 'Fases 1-18 + WhatsApp', users: '5' },
-        { name: 'Gold', price: '$49/mes', features: 'Todo + 16 Agentes IA', users: '10' }
+        { name: 'Pro', price: '$39/mes', features: 'Fases 1-9 + PDF Export', users: '1' },
+        { name: 'Premium', price: '$69/mes', features: 'Fases 1-18 + WhatsApp', users: '5' },
+        { name: 'Gold', price: '$89/mes', features: 'Todo + 16 Agentes IA', users: '10' }
       ];
       
       // Dibujar tabla
@@ -462,7 +462,7 @@ export const PlatformDocumentationPDF = () => {
       ], y);
       
       y = checkPageBreak(y, 40);
-      y = addParagraph('Plan Pro ($19/mes):', y);
+      y = addParagraph('Plan Pro ($39/mes):', y);
       y = addBulletList([
         'Todo lo del plan Free',
         'Generador de contenido con IA',
@@ -473,7 +473,7 @@ export const PlatformDocumentationPDF = () => {
       ], y);
       
       y = checkPageBreak(y, 40);
-      y = addParagraph('Plan Premium ($39/mes):', y);
+      y = addParagraph('Plan Premium ($69/mes):', y);
       y = addBulletList([
         'Todo lo del plan Pro',
         '9 herramientas avanzadas adicionales',
@@ -484,7 +484,7 @@ export const PlatformDocumentationPDF = () => {
       ], y);
       
       y = checkPageBreak(y, 40);
-      y = addParagraph('Plan Gold ($49/mes):', y);
+      y = addParagraph('Plan Gold ($89/mes):', y);
       y = addBulletList([
         'Todo lo del plan Premium',
         '16 Agentes IA especializados',
@@ -520,7 +520,7 @@ export const PlatformDocumentationPDF = () => {
       y = checkPageBreak(y, 50);
       y = addSubtitle('Ejemplo de Ganancias', y);
       y = addParagraph(
-        'Si un afiliado refiere 20 usuarios al plan Premium ($39/mes):\n• Comisión mensual: 20 × $39 × 10% = $78/mes\n• Comisión anual: $78 × 12 = $936/año\n• Ingreso pasivo recurrente mientras los usuarios permanezcan activos',
+        'Si un afiliado refiere 20 usuarios al plan Premium ($69/mes):\n• Comisión mensual: 20 × $69 × 10% = $138/mes\n• Comisión anual: $138 × 12 = $1,656/año\n• Ingreso pasivo recurrente mientras los usuarios permanezcan activos',
         y
       );
       

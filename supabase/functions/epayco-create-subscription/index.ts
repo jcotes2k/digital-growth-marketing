@@ -8,9 +8,9 @@ const corsHeaders = {
 
 // Plan IDs and prices (these should match what's configured in ePayco)
 const PLAN_CONFIG = {
-  pro: { id: 'plan_pro_monthly', name: 'Plan Pro', price: 19, interval: 'month' },
-  premium: { id: 'plan_premium_monthly', name: 'Plan Premium', price: 39, interval: 'month' },
-  gold: { id: 'plan_gold_monthly', name: 'Plan Gold', price: 49, interval: 'month' },
+  pro: { id: 'plan_pro_monthly', name: 'Plan Pro', price: 39, interval: 'month' },
+  premium: { id: 'plan_premium_monthly', name: 'Plan Premium', price: 69, interval: 'month' },
+  gold: { id: 'plan_gold_monthly', name: 'Plan Gold', price: 89, interval: 'month' },
 };
 
 serve(async (req) => {

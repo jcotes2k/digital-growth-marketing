@@ -264,7 +264,7 @@ export function RegistrationForm() {
                   />
                   <PlanCard
                     name="PRO"
-                    price="$19"
+                    price="$39"
                     period="/mes"
                     features={[
                       "Todo lo de Gratuito",
@@ -278,7 +278,7 @@ export function RegistrationForm() {
                   />
                   <PlanCard
                     name="PREMIUM"
-                    price="$39"
+                    price="$69"
                     period="/mes"
                     features={[
                       "Todo lo de PRO",
@@ -291,7 +291,7 @@ export function RegistrationForm() {
                   />
               <PlanCard
                 name="GOLD"
-                price="$49"
+                price="$89"
                     period="/mes"
                     features={[
                       "Todo lo de PREMIUM",

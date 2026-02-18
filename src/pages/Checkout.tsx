@@ -11,7 +11,7 @@ const PLANS = [
   {
     id: 'pro' as const,
     name: 'Pro',
-    price: 19,
+    price: 39,
     icon: Zap,
     color: 'bg-blue-500',
     features: [
@@ -25,7 +25,7 @@ const PLANS = [
   {
     id: 'premium' as const,
     name: 'Premium',
-    price: 39,
+    price: 69,
     icon: Crown,
     color: 'bg-purple-500',
     popular: true,
@@ -40,7 +40,7 @@ const PLANS = [
   {
     id: 'gold' as const,
     name: 'Gold',
-    price: 49,
+    price: 89,
     icon: Star,
     color: 'bg-gradient-to-r from-amber-500 to-yellow-500',
     features: [
