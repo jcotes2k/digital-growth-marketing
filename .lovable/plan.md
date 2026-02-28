@@ -1,41 +1,45 @@
 
 
-## Plan: Actualizar Precios de Suscripcion
+## Plan: Renombrar "Fases Principales" y Agregar Subida de Archivos
 
-### Nuevos Precios
-| Plan | Precio Anterior | Precio Nuevo |
-|------|----------------|--------------|
-| PRO | $19/mes | $39/mes |
-| PREMIUM | $39/mes | $69/mes |
-| GOLD | $49/mes | $89/mes |
+### Cambios
 
-### Archivos a Modificar (7 archivos)
+#### 1. Renombrar titulo en `src/pages/Index.tsx`
+- Linea 465: cambiar "Fases Principales" por "Cerebro del Negocio"
 
-#### Frontend (4 archivos)
+#### 2. Crear bucket de storage para archivos subidos
+- Migración SQL: crear bucket `user-documents` (privado)
+- Crear tabla `user_uploaded_documents` con campos: id, user_id, document_type (business-canvas | buyer-persona | product-roadmap), file_name, file_url, uploaded_at
+- RLS: usuarios solo ven/crean sus propios documentos
+- Políticas de storage para que cada usuario suba/lea sus propios archivos
 
-| Archivo | Cambio |
+#### 3. Crear componente reutilizable `src/components/DocumentUploadButton.tsx`
+- Recibe props: `documentType` ('business-canvas' | 'buyer-persona' | 'product-roadmap'), `label` opcional
+- Boton con icono de upload que abre un input file (acepta PDF, DOCX, imágenes, etc.)
+- Al seleccionar archivo: sube a storage bucket `user-documents/{user_id}/{document_type}/{filename}`
+- Guarda registro en tabla `user_uploaded_documents`
+- Muestra lista de archivos previamente subidos con opcion de descargar/eliminar
+- Toast de confirmacion al subir
+
+#### 4. Integrar el boton en los 3 formularios
+
+**`src/components/BusinessCanvasForm.tsx`**
+- Importar y agregar `<DocumentUploadButton documentType="business-canvas" />` en la barra de herramientas (junto a los botones existentes de Sparkles, Library, etc.)
+
+**`src/components/BuyerPersonaForm.tsx`**
+- Importar y agregar `<DocumentUploadButton documentType="buyer-persona" />` en la interfaz, visible en la pantalla principal del formulario
+
+**`src/components/ProductRoadmapForm.tsx`**
+- Importar y agregar `<DocumentUploadButton documentType="product-roadmap" />` en la barra de herramientas superior (junto a Generar IA, Priorizar, etc.)
+
+### Archivos a crear/modificar
+
+| Archivo | Acción |
 |---------|--------|
-| `src/components/RegistrationForm.tsx` | Cambiar precios en las PlanCards: PRO "$19" -> "$39", PREMIUM "$39" -> "$69", GOLD "$49" -> "$89" |
-| `src/components/EPaycoCheckout.tsx` | Actualizar `PLAN_DETAILS`: pro 19->39, premium 39->69, gold 49->89 |
-| `src/components/EPaycoSubscriptionForm.tsx` | Actualizar `PLAN_DETAILS`: pro 19->39, premium 39->69, gold 49->89 |
-| `src/pages/Checkout.tsx` | Actualizar precios en el array de planes: pro 19->39, premium 39->69, gold 49->89 |
-
-#### Backend - Edge Functions (2 archivos)
-
-| Archivo | Cambio |
-|---------|--------|
-| `supabase/functions/epayco-create-session/index.ts` | Actualizar `PLAN_PRICES`: pro amount 19->39, premium 39->69, gold 49->89 |
-| `supabase/functions/epayco-create-subscription/index.ts` | Actualizar `PLAN_CONFIG`: pro price 19->39, premium 39->69, gold 49->89 |
-
-#### Documentacion PDF (1 archivo)
-
-| Archivo | Cambio |
-|---------|--------|
-| `src/components/PlatformDocumentationPDF.tsx` | Actualizar todas las referencias de precios: "$19/mes" -> "$39/mes", "$39/mes" -> "$69/mes", "$49/mes" -> "$89/mes", y el ejemplo de ganancias de afiliados |
-
-### Lo que NO cambia
-- La estructura de planes (free, pro, premium, gold)
-- Las features de cada plan
-- La logica de pagos y webhooks
-- La base de datos (los planes se guardan como texto 'pro', 'premium', 'gold', no con precios)
+| Migración SQL | Crear bucket + tabla + RLS |
+| `src/components/DocumentUploadButton.tsx` | Crear (componente reutilizable) |
+| `src/pages/Index.tsx` | Renombrar titulo |
+| `src/components/BusinessCanvasForm.tsx` | Agregar boton upload |
+| `src/components/BuyerPersonaForm.tsx` | Agregar boton upload |
+| `src/components/ProductRoadmapForm.tsx` | Agregar boton upload |
 
