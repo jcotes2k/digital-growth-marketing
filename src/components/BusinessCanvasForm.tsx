@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Library, Download, ShieldCheck, GitCompare, Pencil } from 'lucide-react';
+import { DocumentUploadButton } from './DocumentUploadButton';
 import { CanvasTemplateLibrary } from './CanvasTemplateLibrary';
 import { AICanvasGenerator } from './AICanvasGenerator';
 import { supabase } from '@/integrations/supabase/client';
@@ -232,6 +233,7 @@ export const BusinessCanvasForm = () => {
               <Button size="sm" onClick={generatePDF}>
                 <Download className="w-4 h-4 mr-2" />Descargar PDF
               </Button>
+              <DocumentUploadButton documentType="business-canvas" />
             </div>
           </div>
         </div>

@@ -1128,6 +1128,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_uploaded_documents: {
+        Row: {
+          document_type: string
+          file_name: string
+          file_url: string
+          id: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          document_type: string
+          file_name: string
+          file_url: string
+          id?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          document_type?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       workflow_executions: {
         Row: {
           completed_at: string | null
