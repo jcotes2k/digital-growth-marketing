@@ -401,6 +401,7 @@ export const BuyerPersonaForm = () => {
             </div>
             
             <div className="flex gap-2">
+              <DocumentUploadButton documentType="buyer-persona" label="Subir Persona" />
               <Button
                 variant="outline"
                 onClick={() => handlePersonaNavigation('prev')}

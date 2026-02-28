@@ -129,7 +129,12 @@ export const DocumentUploadButton = ({ documentType, label = 'Subir archivo' }: 
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={() => setOpen(true)}
+        className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold"
+      >
         <Upload className="h-4 w-4 mr-1" /> {label}
       </Button>
 

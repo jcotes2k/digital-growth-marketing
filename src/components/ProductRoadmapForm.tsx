@@ -173,10 +173,10 @@ export const ProductRoadmapForm = () => {
                 </Button>
               );
             })}
+            <DocumentUploadButton documentType="product-roadmap" label="Subir Roadmap" />
             <Button size="sm" onClick={handleDownloadPDF}>
               <Download className="h-4 w-4 mr-1" /> Descargar PDF
             </Button>
-            <DocumentUploadButton documentType="product-roadmap" />
           </div>
         </div>
 
