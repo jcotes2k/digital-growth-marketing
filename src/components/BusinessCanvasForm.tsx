@@ -230,10 +230,10 @@ export const BusinessCanvasForm = () => {
               <Button variant="outline" size="sm" onClick={() => setShowScenarios(true)}>
                 <GitCompare className="w-4 h-4 mr-2" />Escenarios
               </Button>
+              <DocumentUploadButton documentType="business-canvas" label="Subir Canvas" />
               <Button size="sm" onClick={generatePDF}>
                 <Download className="w-4 h-4 mr-2" />Descargar PDF
               </Button>
-              <DocumentUploadButton documentType="business-canvas" />
             </div>
           </div>
         </div>
