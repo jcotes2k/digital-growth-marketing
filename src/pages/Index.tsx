@@ -462,7 +462,7 @@ const Index = () => {
               <div className="space-y-6">
                 {/* Core Phases */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Fases Principales <Badge variant="outline" className="ml-2">Gratis</Badge></h3>
+                  <h3 className="text-lg font-semibold mb-3">Cerebro del Negocio <Badge variant="outline" className="ml-2">Gratis</Badge></h3>
                   <div className="grid md:grid-cols-3 gap-4">
                     <PhaseCard phaseId="business-canvas" title="Business Canvas" description="Modelo de negocio" isUnlocked={isPhaseUnlocked('business-canvas')} isCompleted={isPhaseCompleted('business-canvas')} onClick={() => handlePhaseClick('business-canvas')} isIncludedInPlan={isPhaseIncludedInPlan('business-canvas')} hasRequiredPlan={hasRequiredPlan('business-canvas')} />
                     <PhaseCard phaseId="buyer-persona" title="Buyer Persona" description="Define tu cliente ideal" isUnlocked={isPhaseUnlocked('buyer-persona')} isCompleted={isPhaseCompleted('buyer-persona')} onClick={() => handlePhaseClick('buyer-persona')} isIncludedInPlan={isPhaseIncludedInPlan('buyer-persona')} hasRequiredPlan={hasRequiredPlan('buyer-persona')} />

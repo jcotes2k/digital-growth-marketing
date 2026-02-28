@@ -20,7 +20,8 @@ import { BuyerPersona } from '@/types/buyer-persona';
 import { BuyerPersonaCollection } from '@/types/buyer-persona-collection';
 import { CompanyInfo } from '@/types/company-info';
 import { CompanyInfoForm } from './CompanyInfoForm';
-import { ChevronLeft, ChevronRight, Users, Eye, Sparkles, Library } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Users, Eye, Sparkles, Library, Upload } from 'lucide-react';
+import { DocumentUploadButton } from './DocumentUploadButton';
 import { ArchetypeLibrary } from './ArchetypeLibrary';
 import { AIPersonaAssistant } from './AIPersonaAssistant';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -340,6 +341,12 @@ export const BuyerPersonaForm = () => {
                 </p>
                 <Badge variant="secondary">Personalizado y guiado</Badge>
               </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow border-primary/50 flex flex-col items-center justify-center p-6">
+              <Upload className="w-6 h-6 text-primary mb-2" />
+              <p className="text-sm text-muted-foreground mb-3">Sube tu archivo de buyer persona existente</p>
+              <DocumentUploadButton documentType="buyer-persona" label="Subir Buyer Persona" />
             </Card>
           </div>
         </div>

@@ -19,6 +19,7 @@ import {
   Users, CheckSquare, ClipboardList, Lightbulb, Archive, GitBranch,
   Sparkles, ListOrdered, GanttChart, BarChart3, Download, Edit3
 } from 'lucide-react';
+import { DocumentUploadButton } from './DocumentUploadButton';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { toast } from 'sonner';
@@ -175,6 +176,7 @@ export const ProductRoadmapForm = () => {
             <Button size="sm" onClick={handleDownloadPDF}>
               <Download className="h-4 w-4 mr-1" /> Descargar PDF
             </Button>
+            <DocumentUploadButton documentType="product-roadmap" />
           </div>
         </div>
 
