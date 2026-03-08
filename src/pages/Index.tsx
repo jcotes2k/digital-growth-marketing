@@ -615,19 +615,21 @@ const Index = () => {
   return (
     <div>
       {currentPhase !== 'menu' && (
-        <div className="fixed top-4 left-4 right-4 z-50 flex justify-between items-center gap-4">
-          <Button variant="outline" onClick={() => setCurrentPhase('menu')}>
+        <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b px-4 py-3 flex justify-between items-center gap-4">
+          <Button variant="outline" size="sm" onClick={() => setCurrentPhase('menu')}>
             ← Volver al Menú
           </Button>
           {!isPhaseCompleted(currentPhase) && user && (
-            <Button onClick={handleCompletePhase} className="bg-green-600 hover:bg-green-700">
+            <Button size="sm" onClick={handleCompletePhase} className="bg-green-600 hover:bg-green-700">
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Marcar como Completado
+              Completado
             </Button>
           )}
         </div>
       )}
-      {renderPhase()}
+      <div className={currentPhase !== 'menu' ? 'pt-16' : ''}>
+        {renderPhase()}
+      </div>
     </div>
   );
 };
