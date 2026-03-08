@@ -1124,16 +1124,6 @@ export const ContentGeneratorForm = () => {
         </DialogContent>
       </Dialog>
 
-      <TabsContent value="abtesting">
-        <ABTestingDashboard />
-      </TabsContent>
-
-      <TabsContent value="trends">
-        <TrendsAnalysis 
-          metrics={metricsForTrends} 
-          comparisons={comparisonsForTrends}
-        />
-      </TabsContent>
     </div>
   );
 };
