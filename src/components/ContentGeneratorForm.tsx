@@ -434,9 +434,8 @@ export const ContentGeneratorForm = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="generator" className="space-y-8">
-
-      <div className="grid gap-8 lg:grid-cols-[350px_1fr]">
+        <TabsContent value="generator" className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit">
           <CardHeader>
             <CardTitle>Configuración del Contenido</CardTitle>
