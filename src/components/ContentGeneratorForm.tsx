@@ -1006,6 +1006,17 @@ export const ContentGeneratorForm = () => {
         <TabsContent value="history">
           <ContentHistory onReuseContent={handleReuseContent} key={historyRefreshTrigger} />
         </TabsContent>
+
+        <TabsContent value="abtesting">
+          <ABTestingDashboard />
+        </TabsContent>
+
+        <TabsContent value="trends">
+          <TrendsAnalysis 
+            metrics={metricsForTrends} 
+            comparisons={comparisonsForTrends}
+          />
+        </TabsContent>
       </Tabs>
 
       {/* Diálogo para programar en calendario */}
