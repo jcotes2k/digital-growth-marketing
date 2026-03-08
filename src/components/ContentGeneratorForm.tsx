@@ -399,16 +399,16 @@ export const ContentGeneratorForm = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-4">Generador de Contenido Multi-Variante con IA</h1>
-        <p className="text-muted-foreground">
+    <div className="container mx-auto px-4 py-4 max-w-7xl">
+      <div className="text-center mb-4">
+        <h1 className="text-2xl font-bold mb-2">Generador de Contenido Multi-Variante con IA</h1>
+        <p className="text-sm text-muted-foreground">
           Genera variantes de contenido con diferentes estilos y gestiona tu historial
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-4 mb-8">
+        <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4 mb-6">
           <TabsTrigger value="generator">
             <Sparkles className="h-4 w-4 mr-2" />
             Generador
